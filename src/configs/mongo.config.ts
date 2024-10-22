@@ -15,7 +15,7 @@ const getMongoString = (configService: ConfigService) => {
     const PASSWORD = configService.get('MONGO_PASSWORD');
     const CLUSTER = configService.get('MONGO_CLUSTER');
     
-    return `mongodb+srv://${LOGIN}:${PASSWORD}@${CLUSTER}.jroy4gr.mongodb.net/`;
+    return `mongodb+srv://${LOGIN}:${PASSWORD}@${CLUSTER}.bbsia.mongodb.net/`;
 };
 
 const getMongoOptions = () => {
