@@ -1,6 +1,5 @@
-import { AuthModule as AdminAuthModule } from './admin/auth/auth.module';
-import { AuthModule } from './public/auth/auth.module';
-import { UserModule } from './public/user/user.module';
+import { AuthModule } from './shared/auth/auth.module';
+import { UserModule } from './shared/user/user.module';
 
-export const ADMIN_MODULES = [AdminAuthModule];
+export const ADMIN_MODULES = [];
 export const PUBLIC_MODULES = [AuthModule, UserModule];

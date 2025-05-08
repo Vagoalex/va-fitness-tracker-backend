@@ -1,4 +1,4 @@
-import { AuthDto } from '../../../../src/modules/public/auth/dto/auth.dto';
+import { AuthDto } from '../../../../src/modules/shared/auth/dto/auth.dto';
 import { Types } from 'mongoose';
 
 export const testNonExistingUserId = new Types.ObjectId().toHexString();
