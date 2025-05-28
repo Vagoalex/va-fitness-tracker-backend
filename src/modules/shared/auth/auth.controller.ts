@@ -9,16 +9,16 @@ import {
 	UseGuards,
 	UsePipes,
 	ValidationPipe,
+	Controller,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ALREADY_REGISTERED_ERROR } from './constants/auth.constants';
-import { UserService } from '../user/user.service';
 import { LoginDto } from '../../public/common/dto/login.dto';
-import { PublicController } from '../../public/common/decorators/public-controller.decorator';
 import { AuthUserModel } from './models/auth-user.model';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { UserService } from '../user/user.service';
 
-@PublicController('auth')
+@Controller('auth')
 export class AuthController {
 	constructor(
 		private readonly authService: AuthService,
@@ -40,7 +40,7 @@ export class AuthController {
 	@HttpCode(HttpStatus.OK)
 	@Post('login')
 	async login(@Body() dto: LoginDto): Promise<AuthUserModel> {
-		const user = await this.userService.validateUser(dto);
+		const user = await this.userService.loginUser(dto);
 		return this.authService.loginToAccount(user);
 	}
 

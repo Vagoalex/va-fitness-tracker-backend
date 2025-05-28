@@ -13,6 +13,6 @@ import { UserController } from './user.controller';
 		]),
 	],
 	providers: [UserService],
-	exports: [UserService] // Делаем сервис доступным для других модулей,
+	exports: [UserService], // Делаем сервис доступным для других модулей,
 })
 export class UserModule {}

@@ -2,17 +2,15 @@ import {
 	BadRequestException,
 	Body,
 	Delete,
-	Get,
 	HttpException,
 	HttpStatus,
-	NotFoundException,
 	Param,
-	Query,
-	Patch,
 	Post,
 	UsePipes,
 	ValidationPipe,
-	HttpCode,
+	Req,
+	UseGuards,
+	Controller,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDocument } from './models/user.model';
@@ -21,16 +19,16 @@ import {
 	SEARCHING_USER_NOT_FOUND_ERROR,
 } from './constants/user.constants';
 import { IdValidationPipe } from '../../../pipes/id-validation.pipe';
-import { urlTemplateParts } from '../../../constants/url-template-parts.constants';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginDto } from '../../public/common/dto/login.dto';
-import { PublicController } from '../../public/common/decorators/public-controller.decorator';
-import { SafetyUserDocument } from './models/safety-user.model';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-@PublicController('user')
+@Controller('user')
 export class UserController {
-	constructor(private readonly userService: UserService) {}
+	constructor(protected readonly userService: UserService) {}
 
+	/**
+	 * Создание пользователя
+	 */
 	@UsePipes(new ValidationPipe())
 	@Post('create')
 	async create(@Body() dto: LoginDto): Promise<UserDocument> {
@@ -42,44 +40,28 @@ export class UserController {
 		return await this.userService.createUser(dto);
 	}
 
-	@UsePipes(new ValidationPipe())
-	@HttpCode(HttpStatus.OK)
-	@Get()
-	async findUsers(@Query('search') search?: string | null): Promise<SafetyUserDocument[]> {
-		return await this.userService.findUsers(search);
-	}
-
-	@Get(':id')
-	async getById(@Param('id', IdValidationPipe) id: string): Promise<UserDocument> {
-		const document = await this.userService.findUserById(id);
-		if (!document) {
-			throw new NotFoundException(
-				SEARCHING_USER_NOT_FOUND_ERROR.replace(urlTemplateParts.id, id),
-			);
-		}
-
-		return document;
-	}
-
-	@UsePipes(new ValidationPipe())
-	@Patch(':id')
-	async updateById(@Param('id', IdValidationPipe) id: string, @Body() dto: UpdateUserDto) {
-		const updatedDocument = await this.userService.updateUserItem(id, dto);
-		if (!updatedDocument) {
-			throw new HttpException(
-				SEARCHING_USER_NOT_FOUND_ERROR.replace(urlTemplateParts.id, id),
-				HttpStatus.NOT_FOUND,
-			);
-		}
-		return updatedDocument;
-	}
-
-	// @UseGuards(JwtAuthGuard)
+	/**
+	 * Удаление пользователя по id (Нельзя удалить с role ADMIN!)
+	 */
+	// TODO: запилить отмену удаления и выдачу ошибки, если роль юзера ADMIN
+	@UseGuards(JwtAuthGuard)
 	@Delete(':id')
 	async deleteUser(@Param('id', IdValidationPipe) id: string) {
 		const deletedDocument = await this.userService.deleteUserItem(id);
 		if (!deletedDocument) {
 			throw new HttpException(SEARCHING_USER_NOT_FOUND_ERROR, HttpStatus.NOT_FOUND);
 		}
+	}
+
+	/**
+	 * Удаление текущего пользователя (Нельзя удалить с role ADMIN!)
+	 */
+	// TODO: запилить отмену удаления и выдачу ошибки, если роль юзера ADMIN
+	@Delete('me')
+	@UseGuards(JwtAuthGuard)
+	async deleteMyself(@Req() request): Promise<void> {
+		console.warn(request);
+		const userId: string = request.user._id; // ID из JWT
+		await this.userService.deleteUserItem(userId);
 	}
 }

@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { getMongoConfig } from './configs/mongo.config';
-import { ADMIN_MODULES, PUBLIC_MODULES } from './modules';
+import { ADMIN_MODULES, PUBLIC_MODULES, SHARED_MODULES } from './modules';
 import { JwtModule } from '@nestjs/jwt';
 import { getJWTConfig } from './configs/jwt.config';
 
@@ -21,8 +21,9 @@ import { getJWTConfig } from './configs/jwt.config';
 			inject: [ConfigService],
 			useFactory: getJWTConfig,
 		}),
-		
+
 		// Подключение модулей
+		...SHARED_MODULES,
 		...ADMIN_MODULES,
 		...PUBLIC_MODULES,
 	],

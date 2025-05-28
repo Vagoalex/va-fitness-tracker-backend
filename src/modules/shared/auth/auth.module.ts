@@ -7,8 +7,8 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { UserModel, UserSchema } from '../user/models/user.model';
 import { UserController } from '../user/user.controller';
 import { UserModule } from '../user/user.module';
-import { UserService } from '../user/user.service';
 import { USER_COLLECTION_NAME } from '../user/constants/user.constants';
+import { UserService } from '../user/user.service';
 
 @Module({
 	controllers: [AuthController, UserController],
@@ -20,7 +20,6 @@ import { USER_COLLECTION_NAME } from '../user/constants/user.constants';
 		UserModule,
 	],
 	providers: [AuthService, UserService, JwtStrategy],
-	exports: [AuthService] // Делаем сервис доступным для других модулей
-	
+	exports: [AuthService], // Делаем сервис доступным для других модулей
 })
 export class AuthModule {}

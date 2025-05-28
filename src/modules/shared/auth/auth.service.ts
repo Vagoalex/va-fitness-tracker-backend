@@ -1,23 +1,24 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
-import { UserDocument, UserModel } from '../user/models/user.model';
+import { UserDocument } from '../user/models/user.model';
 import { AuthUserModel } from './models/auth-user.model';
-import { UserService } from '../user/user.service';
 import { INVALID_OR_EXPIRED_TOKEN_ERROR } from './constants/auth.constants';
 import { UserJwtPayloadModel } from './models/user-jwt-payload.model';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AuthService {
 	constructor(
-		@InjectModel(UserModel.name) private readonly userModel: Model<UserDocument>,
 		private readonly jwtService: JwtService,
 		private readonly userService: UserService,
 	) {}
 
 	async loginToAccount(user: UserDocument): Promise<AuthUserModel> {
-		const payload: UserJwtPayloadModel = { email: user.email, userId: user._id.toString(), roles: [] };
+		const payload: UserJwtPayloadModel = {
+			email: user.email,
+			userId: user._id.toString(),
+			roles: [],
+		};
 		// Преобразуем документ в plain object и удаляем из него passwordHash
 		const { passwordHash, ...safetyUser } = user.toObject();
 
