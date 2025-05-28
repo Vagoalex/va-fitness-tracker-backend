@@ -9,7 +9,10 @@ import { UserController } from '../user/user.controller';
 import { UserModule } from '../user/user.module';
 import { USER_COLLECTION_NAME } from '../user/constants/user.constants';
 import { UserService } from '../user/user.service';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
+// TODO: бага в authModule
 @Module({
 	controllers: [AuthController, UserController],
 	imports: [
@@ -19,7 +22,7 @@ import { UserService } from '../user/user.service';
 		PassportModule,
 		UserModule,
 	],
-	providers: [AuthService, UserService, JwtStrategy],
+	providers: [ConfigService, JwtService, AuthService, UserService, JwtStrategy],
 	exports: [AuthService], // Делаем сервис доступным для других модулей
 })
 export class AuthModule {}
