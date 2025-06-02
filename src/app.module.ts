@@ -10,7 +10,7 @@ import { getJWTConfig } from './configs/jwt.config';
 @Module({
 	imports: [
 		// Глобальная настройка модулей
-		ConfigModule.forRoot(),
+		ConfigModule.forRoot({ isGlobal: true }),
 		MongooseModule.forRootAsync({
 			imports: [ConfigModule],
 			inject: [ConfigService],

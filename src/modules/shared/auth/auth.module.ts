@@ -5,24 +5,28 @@ import { AuthService } from './auth.service';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { UserModel, UserSchema } from '../user/models/user.model';
-import { UserController } from '../user/user.controller';
 import { UserModule } from '../user/user.module';
 import { USER_COLLECTION_NAME } from '../user/constants/user.constants';
 import { UserService } from '../user/user.service';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { getJWTConfig } from '../../../configs/jwt.config';
 
-// TODO: бага в authModule
 @Module({
-	controllers: [AuthController, UserController],
+	controllers: [AuthController],
 	imports: [
 		MongooseModule.forFeature([
 			{ name: UserModel.name, schema: UserSchema, collection: USER_COLLECTION_NAME },
 		]),
+		JwtModule.registerAsync({
+			imports: [ConfigModule],
+			inject: [ConfigService],
+			useFactory: getJWTConfig,
+		}),
 		PassportModule,
 		UserModule,
+		JwtModule,
 	],
-	providers: [ConfigService, JwtService, AuthService, UserService, JwtStrategy],
-	exports: [AuthService], // Делаем сервис доступным для других модулей
+	providers: [ConfigService, AuthService, UserService, JwtStrategy],
 })
 export class AuthModule {}

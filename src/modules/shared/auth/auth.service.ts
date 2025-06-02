@@ -17,14 +17,16 @@ export class AuthService {
 		const payload: UserJwtPayloadModel = {
 			email: user.email,
 			userId: user._id.toString(),
+			// TODO: сделать роли и выдавать их из пользоака
 			roles: [],
 		};
+
 		// Преобразуем документ в plain object и удаляем из него passwordHash
 		const { passwordHash, ...safetyUser } = user.toObject();
 
 		return {
 			...safetyUser,
-			access_token: await this.jwtService.signAsync(payload, { expiresIn: '1 Day' }),
+			access_token: await this.jwtService.signAsync(payload),
 		};
 	}
 
