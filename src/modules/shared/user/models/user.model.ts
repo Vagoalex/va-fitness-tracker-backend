@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as MSchema } from 'mongoose';
 import { UserGenderTypes } from '../enums/UserGenderTypes';
 import { UserStatusTypes } from '../enums/UserStatusTypes';
+import { RoleTypes } from '../../../../enums/RoleTypes';
 
 export type UserDocument = HydratedDocument<UserModel>;
 
@@ -27,6 +28,9 @@ export class UserModel {
 
 	@Prop()
 	phone: string;
+
+	@Prop({ type: [{ type: String, enum: Object.values(RoleTypes) }] })
+	roles: RoleTypes[];
 }
 
 export const UserSchema: MSchema<UserModel> = SchemaFactory.createForClass(UserModel);

@@ -7,6 +7,8 @@ import { Model } from 'mongoose';
 import { LoginDto } from '../../public/common/dto/login.dto';
 import { compare, genSalt, hash } from 'bcryptjs';
 import { USER_NOT_FOUND_ERROR, WRONG_PASSWORD_ERROR } from './constants/user.constants';
+import { RoleTypes } from '../../../enums/RoleTypes';
+import { ADMIN_ROLES } from '../../../constants/auth.constants';
 
 @Injectable()
 export class UserService {
@@ -18,6 +20,7 @@ export class UserService {
 		gender: UserGenderTypes.UNKNOWN,
 		status: UserStatusTypes.ACTIVE,
 		phone: '',
+		roles: [RoleTypes.User],
 	};
 
 	constructor(@InjectModel(UserModel.name) public userModel: Model<UserDocument>) {}
