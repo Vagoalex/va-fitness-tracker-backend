@@ -2,8 +2,6 @@ import {
 	BadRequestException,
 	Body,
 	Delete,
-	HttpException,
-	HttpStatus,
 	Param,
 	Post,
 	UsePipes,
@@ -11,16 +9,15 @@ import {
 	Req,
 	UseGuards,
 	Controller,
+	NotFoundException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDocument } from './models/user.model';
-import {
-	ALREADY_EXISTED_USER_ERROR,
-	SEARCHING_USER_NOT_FOUND_ERROR,
-} from './constants/user.constants';
+import { ALREADY_EXISTED_USER_ERROR, USER_NOT_FOUND_ERROR } from './constants/user.constants';
 import { IdValidationPipe } from '../../../pipes/id-validation.pipe';
 import { LoginDto } from '../../public/common/dto/login.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { DeleteMeRequestModel } from './models/delete-me-request.model';
 
 @Controller('user')
 export class UserController {
@@ -41,27 +38,35 @@ export class UserController {
 	}
 
 	/**
-	 * Удаление пользователя по id (Нельзя удалить с role ADMIN!)
+	 * Удаление текущего пользователя (Нельзя удалить с role ADMIN!)
 	 */
-	// TODO: запилить отмену удаления и выдачу ошибки, если роль юзера ADMIN
+	@Delete('me')
 	@UseGuards(JwtAuthGuard)
-	@Delete(':id')
-	async deleteUser(@Param('id', IdValidationPipe) id: string) {
-		const deletedDocument = await this.userService.deleteUserItem(id);
+	async deleteMyself(@Req() request: DeleteMeRequestModel): Promise<void> {
+		if (!request.user) {
+			throw new BadRequestException(USER_NOT_FOUND_ERROR);
+		}
+
+		const userId = request.user._id as unknown as string;
+		await this.userService.checkDeletableUser(userId);
+
+		const deletedDocument = await this.userService.deleteUserItem(userId);
 		if (!deletedDocument) {
-			throw new HttpException(SEARCHING_USER_NOT_FOUND_ERROR, HttpStatus.NOT_FOUND);
+			throw new NotFoundException(USER_NOT_FOUND_ERROR);
 		}
 	}
 
 	/**
-	 * Удаление текущего пользователя (Нельзя удалить с role ADMIN!)
+	 * Удаление пользователя по id (Нельзя удалить с role ADMIN!)
 	 */
-	// TODO: запилить отмену удаления и выдачу ошибки, если роль юзера ADMIN
-	@Delete('me')
 	@UseGuards(JwtAuthGuard)
-	async deleteMyself(@Req() request): Promise<void> {
-		console.warn(request);
-		const userId: string = request.user._id; // ID из JWT
-		await this.userService.deleteUserItem(userId);
+	@Delete(':id')
+	async deleteUser(@Param('id', IdValidationPipe) id: string) {
+		await this.userService.checkDeletableUser(id);
+
+		const deletedDocument = await this.userService.deleteUserItem(id);
+		if (!deletedDocument) {
+			throw new NotFoundException(USER_NOT_FOUND_ERROR);
+		}
 	}
 }

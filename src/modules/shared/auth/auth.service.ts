@@ -17,8 +17,7 @@ export class AuthService {
 		const payload: UserJwtPayloadModel = {
 			email: user.email,
 			userId: user._id.toString(),
-			// TODO: сделать роли и выдавать их из пользоака
-			roles: [],
+			roles: user.roles,
 		};
 
 		// Преобразуем документ в plain object и удаляем из него passwordHash
