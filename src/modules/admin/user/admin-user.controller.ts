@@ -12,15 +12,15 @@ import {
 	HttpCode,
 	UseGuards,
 } from '@nestjs/common';
-import { AdminController } from './common/decorators/admin-controller.decorator';
-import { UserDocument } from '../shared/user/models/user.model';
+import { AdminController } from '../common/decorators/admin-controller.decorator';
+import { UserDocument } from '../../shared/user/models/user.model';
 import { AdminUserService } from './admin-user.service';
-import { IdValidationPipe } from '../../pipes/id-validation.pipe';
-import { urlTemplateParts } from '../../constants/url-template-parts.constants';
-import { UpdateUserDto } from '../shared/user/dto/update-user.dto';
-import { SEARCHING_USER_NOT_FOUND_ERROR } from '../shared/user/constants/user.constants';
-import { SafetyUserDocument } from '../shared/user/models/safety-user.model';
-import { JwtAuthGuard } from '../shared/auth/guards/jwt-auth.guard';
+import { IdValidationPipe } from '../../../pipes/id-validation.pipe';
+import { urlTemplateParts } from '../../../constants/url-template-parts.constants';
+import { UpdateUserDto } from '../../shared/user/dto/update-user.dto';
+import { SEARCHING_USER_NOT_FOUND_ERROR } from '../../shared/user/constants/user.constants';
+import { SafetyUserDocument } from '../../shared/user/models/safety-user.model';
+import { JwtAuthGuard } from '../../shared/auth/guards/jwt-auth.guard';
 
 @AdminController('user')
 export class AdminUserController {

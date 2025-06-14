@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { UserDocument, UserModel } from '../shared/user/models/user.model';
-import { SafetyUserDocument } from '../shared/user/models/safety-user.model';
-import { UpdateUserDto } from '../shared/user/dto/update-user.dto';
-import { UserService } from '../shared/user/user.service';
+import { UserDocument, UserModel } from '../../shared/user/models/user.model';
+import { SafetyUserDocument } from '../../shared/user/models/safety-user.model';
+import { UpdateUserDto } from '../../shared/user/dto/update-user.dto';
+import { UserService } from '../../shared/user/user.service';
 
 @Injectable()
 export class AdminUserService extends UserService {
