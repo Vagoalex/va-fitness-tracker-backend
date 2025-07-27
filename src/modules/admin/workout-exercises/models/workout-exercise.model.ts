@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as MSchema } from 'mongoose';
-import { ExerciseTypeModel } from '../../exercise-types/models/exercise-type.model';
+import { ExerciseTypeModel } from '../../workout-exercise-types/models/exercise-type.model';
 
-export type ExerciseDocument = HydratedDocument<ExerciseModel>;
+export type WorkoutExerciseDocument = HydratedDocument<WorkoutExerciseModel>;
 
 @Schema({ versionKey: false })
-export class ExerciseModel {
+export class WorkoutExerciseModel {
 	@Prop({ required: true, unique: true })
 	name: string;
 
@@ -22,4 +22,5 @@ export class ExerciseModel {
 	type: ExerciseTypeModel;
 }
 
-export const ExerciseSchema: MSchema<ExerciseModel> = SchemaFactory.createForClass(ExerciseModel);
+export const WorkoutExerciseSchema: MSchema<WorkoutExerciseModel> =
+	SchemaFactory.createForClass(WorkoutExerciseModel);
