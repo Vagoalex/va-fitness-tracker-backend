@@ -28,7 +28,7 @@ export class UserController {
 	 */
 	@UsePipes(new ValidationPipe())
 	@UseGuards(JwtAuthGuard)
-	@Post('create')
+	@Post()
 	async create(@Body() dto: LoginDto): Promise<UserDocument> {
 		const existedDocument = await this.userService.findUserByEmail(dto.login);
 		if (existedDocument) {

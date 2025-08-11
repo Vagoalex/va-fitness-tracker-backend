@@ -1,7 +1,6 @@
 import {
 	UsePipes,
 	ValidationPipe,
-	UseGuards,
 	Controller,
 	HttpCode,
 	HttpStatus,
@@ -9,7 +8,6 @@ import {
 	Query,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CategoryDocument } from './models/category.model';
 
 @Controller('categories')
