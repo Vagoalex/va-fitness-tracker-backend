@@ -10,6 +10,13 @@ export type CategoryDocument = HydratedDocument<CategoryModel>;
 @Schema({ versionKey: false, timestamps: true })
 export class CategoryModel {
 	/**
+	 * Название вида категории в техническом виде
+	 * Например: (back, chest, legs, arms, shoulders, biceps, triceps).
+	 */
+	@Prop({ required: true, unique: true })
+	code: string;
+
+	/**
 	 * Название вида категории
 	 * Например: Спина, Грудь, Ноги, Предплечья, Плечи, Бицепс, Трицепс и т.д.
 	 */
@@ -28,8 +35,6 @@ export class CategoryModel {
 	 */
 	@Prop()
 	icon?: string;
-	// @Prop({ type: MSchema.Types.ObjectId, ref: 'Category' })
-	// parent?: CategoryModel;
 }
 
 export const CategorySchema: MSchema<CategoryModel> = SchemaFactory.createForClass(CategoryModel);

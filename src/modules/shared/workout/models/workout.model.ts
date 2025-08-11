@@ -5,7 +5,7 @@ import { arrayMinLength } from '../../../../validators/array-min-length.validato
 import {
 	WorkoutExerciseDocument,
 	WorkoutExerciseModel,
-} from '../../exercises/models/workout-exercise.model';
+} from '../../exercise/models/workout-exercise.model';
 
 // 1. Интерфейс для виртуальных полей
 export interface WorkoutModelVirtual {

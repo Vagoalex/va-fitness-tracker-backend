@@ -6,7 +6,7 @@ import { UserLevelTypes } from '../../../../enums/UserLevelTypes';
 export type ExerciseDocument = HydratedDocument<ExerciseModel>;
 
 /**
- * Модель конкретного упражнения
+ * Модель конкретного упражнения (Входит в exercise-type)
  */
 @Schema({ versionKey: false })
 export class ExerciseModel {

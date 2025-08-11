@@ -4,7 +4,7 @@ import { HydratedDocument, Schema as MSchema } from 'mongoose';
 export type WorkoutExerciseSetDocument = HydratedDocument<WorkoutExerciseSetModel>;
 
 /**
- * Подход в упражнении
+ * Сет в подходе в упражнении (количетсво, вес и прочее)
  */
 @Schema({ versionKey: false })
 export class WorkoutExerciseSetModel {

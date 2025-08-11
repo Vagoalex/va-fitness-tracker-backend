@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as MSchema } from 'mongoose';
-import { CategoryModel } from '../../categories/models/category.model';
+import { CategoryModel } from '../../category/models/category.model';
 
 export type ExerciseTypeDocument = HydratedDocument<ExerciseTypeModel>;
 
 /**
- * Модель типа упражнения
+ * Модель типа упражнения (Входит в category)
  */
 @Schema({ versionKey: false })
 export class ExerciseTypeModel {

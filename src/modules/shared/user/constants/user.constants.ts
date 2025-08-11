@@ -1,6 +1,6 @@
 import { urlTemplateParts } from '../../../../constants/url-template-parts.constants';
 
-export const USER_COLLECTION_NAME: string = 'user';
+export const USER_COLLECTION_NAME: string = 'users';
 
 export const IMPOSSIBLE_DELETE_ADMIN_USER_ERROR =
 	'Невозможно удалить пользователя с ролью "Администратор"';
