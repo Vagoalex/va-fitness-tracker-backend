@@ -21,6 +21,7 @@ import { UpdateUserDto } from '../../shared/user/dto/update-user.dto';
 import { SEARCHING_USER_NOT_FOUND_ERROR } from '../../shared/user/constants/user.constants';
 import { SafetyUserDocument } from '../../shared/user/models/safety-user.model';
 import { JwtAuthGuard } from '../../shared/auth/guards/jwt-auth.guard';
+import { FindUsersQueryDto } from './dto/find-users-query.dto';
 
 @AdminController('user')
 export class AdminUserController {
@@ -29,12 +30,12 @@ export class AdminUserController {
 	/**
 	 * Получение всех пользователей
 	 */
-	@UsePipes(new ValidationPipe())
+	@UsePipes(new ValidationPipe({ transform: true }))
 	@UseGuards(JwtAuthGuard)
 	@HttpCode(HttpStatus.OK)
 	@Get()
-	async findUsers(@Query('search') search?: string | null): Promise<SafetyUserDocument[]> {
-		return await this.adminUserService.findUsers(search);
+	async findUsers(@Query() query?: FindUsersQueryDto): Promise<SafetyUserDocument[]> {
+		return this.adminUserService.findUsers(query);
 	}
 
 	/**

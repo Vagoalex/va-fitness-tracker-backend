@@ -27,6 +27,7 @@ export class UserController {
 	 * Создание пользователя
 	 */
 	@UsePipes(new ValidationPipe())
+	@UseGuards(JwtAuthGuard)
 	@Post('create')
 	async create(@Body() dto: LoginDto): Promise<UserDocument> {
 		const existedDocument = await this.userService.findUserByEmail(dto.login);
@@ -40,8 +41,8 @@ export class UserController {
 	/**
 	 * Удаление текущего пользователя (Нельзя удалить с role ADMIN!)
 	 */
-	@Delete('me')
 	@UseGuards(JwtAuthGuard)
+	@Delete('me')
 	async deleteMyself(@Req() request: DeleteMeRequestModel): Promise<void> {
 		if (!request.user) {
 			throw new BadRequestException(USER_NOT_FOUND_ERROR);
