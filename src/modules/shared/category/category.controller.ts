@@ -6,11 +6,14 @@ import {
 	HttpStatus,
 	Get,
 	Query,
+	UseGuards,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CategoryDocument } from './models/category.model';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('categories')
+@UseGuards(JwtAuthGuard)
 export class CategoryController {
 	constructor(protected readonly categoryService: CategoryService) {}
 

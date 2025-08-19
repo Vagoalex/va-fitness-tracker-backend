@@ -20,7 +20,6 @@ import {
 	WRONG_PASSWORD_ERROR,
 } from './constants/user.constants';
 import { RoleTypes } from '../../../enums/RoleTypes';
-import { UserJwtPayloadModel } from '../auth/models/user-jwt-payload.model';
 
 @Injectable()
 export class UserService {

@@ -6,7 +6,7 @@ import { CategoryDocument } from '../../shared/category/models/category.model';
 @Injectable()
 export class AdminCategoryService extends CategoryService {
 	async createCategory(dto: CreateCategoryDto): Promise<CategoryDocument> {
-		const newUser = new this.categoryModel(dto);
-		return newUser.save();
+		const newCategory = new this.categoryModel(dto);
+		return newCategory.save();
 	}
 }
