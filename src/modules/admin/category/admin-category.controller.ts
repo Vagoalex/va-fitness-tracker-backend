@@ -17,8 +17,12 @@ import {
 import { JwtAuthGuard } from '../../shared/auth/guards/jwt-auth.guard';
 import { CategoryController } from '../../shared/category/category.controller';
 import { CategoryService } from '../../shared/category/category.service';
+import { RequireRoles } from '../../../decorators/roles.decorator';
+import { RoleTypes } from '../../../enums/RoleTypes';
 
 @AdminController('categories')
+@RequireRoles(RoleTypes.Admin)
+@UseGuards(JwtAuthGuard)
 export class AdminCategoryController extends CategoryController {
 	constructor(
 		protected readonly categoryService: CategoryService,
@@ -31,7 +35,6 @@ export class AdminCategoryController extends CategoryController {
 	 * Создание новой категории
 	 */
 	@UsePipes(new ValidationPipe())
-	@UseGuards(JwtAuthGuard)
 	@Post()
 	async create(@Body() dto: CreateCategoryDto): Promise<CategoryDocument> {
 		const { nameExists, codeExists } =

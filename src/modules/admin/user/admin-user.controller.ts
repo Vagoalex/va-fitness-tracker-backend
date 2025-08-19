@@ -22,8 +22,12 @@ import { SEARCHING_USER_NOT_FOUND_ERROR } from '../../shared/user/constants/user
 import { SafetyUserDocument } from '../../shared/user/models/safety-user.model';
 import { JwtAuthGuard } from '../../shared/auth/guards/jwt-auth.guard';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
+import { RequireRoles } from '../../../decorators/roles.decorator';
+import { RoleTypes } from '../../../enums/RoleTypes';
 
 @AdminController('user')
+@RequireRoles(RoleTypes.Admin)
+@UseGuards(JwtAuthGuard)
 export class AdminUserController {
 	constructor(private readonly adminUserService: AdminUserService) {}
 
@@ -31,7 +35,6 @@ export class AdminUserController {
 	 * Получение всех пользователей
 	 */
 	@UsePipes(new ValidationPipe({ transform: true }))
-	@UseGuards(JwtAuthGuard)
 	@HttpCode(HttpStatus.OK)
 	@Get()
 	async findUsers(@Query() query?: FindUsersQueryDto): Promise<SafetyUserDocument[]> {
@@ -41,7 +44,6 @@ export class AdminUserController {
 	/**
 	 * Получение пользователя по id
 	 */
-	@UseGuards(JwtAuthGuard)
 	@Get(':id')
 	async getById(@Param('id', IdValidationPipe) id: string): Promise<UserDocument> {
 		const document = await this.adminUserService.findUserById(id);
@@ -57,7 +59,6 @@ export class AdminUserController {
 	/**
 	 * Обновление пользователя по id
 	 */
-	@UseGuards(JwtAuthGuard)
 	@UsePipes(new ValidationPipe())
 	@Patch(':id')
 	async updateById(@Param('id', IdValidationPipe) id: string, @Body() dto: UpdateUserDto) {
