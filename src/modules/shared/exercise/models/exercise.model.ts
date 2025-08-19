@@ -6,10 +6,18 @@ import { UserLevelTypes } from '../../../../enums/UserLevelTypes';
 export type ExerciseDocument = HydratedDocument<ExerciseModel>;
 
 /**
- * Модель конкретного упражнения (Входит в exercise-type)
+ * Модель конкретного упражнения - конечное состояние (Входит в exercise-type)
+ * Например ("Подтягивания широким хватом", "Алмазные отжимания" и т.д)
  */
 @Schema({ versionKey: false })
 export class ExerciseModel {
+	/**
+	 * Название упражнения в техническом виде
+	 * Наример: ("wide_grip_pull_ups", "diamond_push_ups" и т.д)
+	 */
+	@Prop({ required: true, unique: true })
+	code: string;
+
 	/**
 	 * Название упражнения
 	 * Наример: "Подтягивания широким хватом", "Алмазные отжимания" и т.д

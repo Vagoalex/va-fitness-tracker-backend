@@ -6,12 +6,20 @@ export type ExerciseTypeDocument = HydratedDocument<ExerciseTypeModel>;
 
 /**
  * Модель типа упражнения (Входит в category)
+ * Например ("Подтягивания", "Отжимания", "Приседания" и т.д)
  */
 @Schema({ versionKey: false })
 export class ExerciseTypeModel {
 	/**
+	 * Название вида упражнения в техническом виде
+	 * Например: ("pull_up", "push_up", "squat" и т.д).
+	 */
+	@Prop({ required: true, unique: true })
+	code: string;
+
+	/**
 	 * Название упражнения.
-	 * Например: "Подтягивания", "Отжимания", "Приседания" и т.д.
+	 * Например: "Подтягивание", "Отжимание", "Приседание" и т.д.
 	 */
 	@Prop({ required: true, unique: true })
 	name: string;
