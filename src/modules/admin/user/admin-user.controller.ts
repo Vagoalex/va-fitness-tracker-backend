@@ -15,15 +15,15 @@ import {
 import { AdminController } from '../common/decorators/admin-controller.decorator';
 import { UserDocument } from '../../shared/user/models/user.model';
 import { AdminUserService } from './admin-user.service';
-import { IdValidationPipe } from '../../../pipes/id-validation.pipe';
-import { urlTemplateParts } from '../../../constants/url-template-parts.constants';
+import { IdValidationPipe } from '../../../core/pipes/id-validation.pipe';
+import { urlTemplateParts } from '../../../core/constants/url-template-parts.constants';
 import { UpdateUserDto } from '../../shared/user/dto/update-user.dto';
 import { SEARCHING_USER_NOT_FOUND_ERROR } from '../../shared/user/constants/user.constants';
 import { SafetyUserDocument } from '../../shared/user/models/safety-user.model';
 import { JwtAuthGuard } from '../../shared/auth/guards/jwt-auth.guard';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
-import { RequireRoles } from '../../../decorators/roles.decorator';
-import { RoleTypes } from '../../../enums/RoleTypes';
+import { RequireRoles } from '../../../core/decorators/roles.decorator';
+import { RoleTypes } from '../../../core/enums/RoleTypes';
 
 @AdminController('user')
 @RequireRoles(RoleTypes.Admin)

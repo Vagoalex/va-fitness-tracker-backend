@@ -1,4 +1,4 @@
-import { urlTemplateParts } from '../../../../constants/url-template-parts.constants';
+import { urlTemplateParts } from '../../../../core/constants/url-template-parts.constants';
 
 export const USER_COLLECTION_NAME: string = 'users';
 

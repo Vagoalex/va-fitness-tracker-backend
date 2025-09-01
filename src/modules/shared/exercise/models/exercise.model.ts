@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as MSchema } from 'mongoose';
 import { ExerciseTypeModel } from './exercise-type.model';
-import { UserLevelTypes } from '../../../../enums/UserLevelTypes';
+import { UserLevelTypes } from '../../../../core/enums/UserLevelTypes';
 
 export type ExerciseDocument = HydratedDocument<ExerciseModel>;
 
@@ -39,7 +39,7 @@ export class ExerciseModel {
 		ref: ExerciseTypeModel.name,
 		required: true,
 	})
-	type: ExerciseTypeModel;
+	exerciseTypeId: ExerciseTypeModel;
 
 	/**
 	 * Пошаговая инструкция выполнения

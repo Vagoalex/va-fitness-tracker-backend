@@ -10,7 +10,7 @@ import { USER_COLLECTION_NAME } from '../user/constants/user.constants';
 import { UserService } from '../user/user.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
-import { getJWTConfig } from '../../../configs/jwt.config';
+import { getJWTConfig } from '../../../core/configs/jwt.config';
 
 @Module({
 	controllers: [AuthController],

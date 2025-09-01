@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as MSchema } from 'mongoose';
 import { ExerciseDocument, ExerciseModel } from './exercise.model';
 import { WorkoutExerciseSetDocument } from './workout-exercise-set.model';
-import { arrayMinLength } from '../../../../validators/array-min-length.validator';
+import { arrayMinLength } from '../../../../core/validators/array-min-length.validator';
 
 export type WorkoutExerciseDocument = HydratedDocument<WorkoutExerciseModel>;
 

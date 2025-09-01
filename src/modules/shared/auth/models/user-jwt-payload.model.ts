@@ -1,4 +1,4 @@
-import { RoleTypes } from '../../../../enums/RoleTypes';
+import { RoleTypes } from '../../../../core/enums/RoleTypes';
 
 export interface UserJwtPayloadModel {
 	userId: string;

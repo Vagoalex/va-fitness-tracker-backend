@@ -38,7 +38,7 @@ export class ExerciseTypeModel {
 		ref: CategoryModel.name,
 		required: true,
 	})
-	category: CategoryModel;
+	categoryId: CategoryModel;
 }
 
 export const ExerciseTypeSchema: MSchema<ExerciseTypeModel> =

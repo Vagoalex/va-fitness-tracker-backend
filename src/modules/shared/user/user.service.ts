@@ -19,7 +19,7 @@ import {
 	USER_NOT_FOUND_ERROR,
 	WRONG_PASSWORD_ERROR,
 } from './constants/user.constants';
-import { RoleTypes } from '../../../enums/RoleTypes';
+import { RoleTypes } from '../../../core/enums/RoleTypes';
 
 @Injectable()
 export class UserService {

@@ -2,7 +2,7 @@ import { IsOptional, IsString, IsArray, IsNumber, IsEnum } from 'class-validator
 import { Transform } from 'class-transformer';
 
 import { IsIn } from 'class-validator';
-import { ADMIN_ROLES } from '../../../../constants/auth.constants';
+import { ADMIN_ROLES } from '../../../../core/constants/auth.constants';
 
 export class FindUsersQueryDto {
 	@IsOptional()

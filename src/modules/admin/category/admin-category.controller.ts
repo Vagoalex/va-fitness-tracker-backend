@@ -17,8 +17,8 @@ import {
 import { JwtAuthGuard } from '../../shared/auth/guards/jwt-auth.guard';
 import { CategoryController } from '../../shared/category/category.controller';
 import { CategoryService } from '../../shared/category/category.service';
-import { RequireRoles } from '../../../decorators/roles.decorator';
-import { RoleTypes } from '../../../enums/RoleTypes';
+import { RequireRoles } from '../../../core/decorators/roles.decorator';
+import { RoleTypes } from '../../../core/enums/RoleTypes';
 
 @AdminController('categories')
 @RequireRoles(RoleTypes.Admin)

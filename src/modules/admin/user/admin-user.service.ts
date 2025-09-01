@@ -6,7 +6,7 @@ import { UserService } from '../../shared/user/user.service';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
 import { UserGenderTypes } from '../../shared/user/enums/UserGenderTypes';
 import { UserStatusTypes } from '../../shared/user/enums/UserStatusTypes';
-import { isNil } from '../../../utils/isNil';
+import { isNil } from '../../../core/utils/isNil';
 import { checkUserGenderHelper } from '../../shared/user/helpers/checkUserGender.helper';
 import { checkUserStatusHelper } from '../../shared/user/helpers/checkUserStatus.helper';
 

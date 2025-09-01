@@ -1,6 +1,6 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { RolesGuard } from './guards/roles.guard';
+import { RolesGuard } from './core/guards/roles.guard';
 import { JwtService } from '@nestjs/jwt';
 
 async function bootstrap() {

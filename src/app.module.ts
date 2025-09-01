@@ -2,13 +2,13 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { getMongoConfig } from './configs/mongo.config';
+import { getMongoConfig } from './core/configs/mongo.config';
 import { ADMIN_MODULES, PUBLIC_MODULES, SHARED_MODULES } from './modules';
 import { JwtModule } from '@nestjs/jwt';
-import { getJWTConfig } from './configs/jwt.config';
+import { getJWTConfig } from './core/configs/jwt.config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './modules/shared/auth/guards/jwt-auth.guard';
-import { RolesGuard } from './guards/roles.guard';
+import { RolesGuard } from './core/guards/roles.guard';
 
 @Module({
 	imports: [
