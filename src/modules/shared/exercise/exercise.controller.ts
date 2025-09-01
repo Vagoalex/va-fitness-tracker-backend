@@ -10,16 +10,12 @@ import {
 } from '@nestjs/common';
 import { ExerciseService } from './exercise.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ExerciseTypeService } from './exercise-type.service';
-import { ExerciseTypeDocument } from './models/exercise-type.model';
+import { ExerciseDocument } from './models/exercise.model';
 
 @Controller('exercises')
 @UseGuards(JwtAuthGuard)
 export class ExerciseController {
-	constructor(
-		protected readonly exerciseService: ExerciseService,
-		protected readonly exerciseTypeService: ExerciseTypeService,
-	) {}
+	constructor(protected readonly exerciseService: ExerciseService) {}
 
 	/**
 	 * Получение типов упражнений
@@ -29,7 +25,7 @@ export class ExerciseController {
 	@Get()
 	async findExerciseTypes(
 		@Query() queryParameters?: { name?: string; code?: string },
-	): Promise<ExerciseTypeDocument[]> {
-		return await this.exerciseTypeService.findExerciseTypeByName(queryParameters);
+	): Promise<ExerciseDocument[]> {
+		return await this.exerciseService.findByNameOrCode(queryParameters);
 	}
 }
