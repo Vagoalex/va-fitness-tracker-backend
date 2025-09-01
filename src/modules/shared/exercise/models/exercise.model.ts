@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as MSchema } from 'mongoose';
-import { ExerciseTypeModel } from './exercise-type.model';
 import { UserLevelTypes } from '../../../../core/enums/UserLevelTypes';
+import { ExerciseTypeModel } from '../../exercise-type/models/exercise-type.model';
 
 export type ExerciseDocument = HydratedDocument<ExerciseModel>;
 

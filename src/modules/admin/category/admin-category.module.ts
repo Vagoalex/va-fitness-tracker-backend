@@ -8,7 +8,7 @@ import { CategoryService } from '../../shared/category/category.service';
 import { CategoryController } from '../../shared/category/category.controller';
 
 @Module({
-	controllers: [AdminCategoryController, CategoryController],
+	controllers: [AdminCategoryController],
 	imports: [
 		MongooseModule.forFeature([
 			{
@@ -18,6 +18,6 @@ import { CategoryController } from '../../shared/category/category.controller';
 			},
 		]),
 	],
-	providers: [AdminCategoryService, CategoryService],
+	providers: [AdminCategoryService],
 })
 export class AdminCategoryModule {}

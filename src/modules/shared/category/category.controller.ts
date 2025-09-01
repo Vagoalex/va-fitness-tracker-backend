@@ -26,6 +26,6 @@ export class CategoryController {
 	async findCategories(
 		@Query() queryParameters?: { name?: string },
 	): Promise<CategoryDocument[]> {
-		return await this.categoryService.findCategoriesByName(queryParameters);
+		return await this.categoryService.findByNameOrCode(queryParameters);
 	}
 }
