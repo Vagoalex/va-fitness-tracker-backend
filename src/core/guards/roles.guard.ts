@@ -15,7 +15,7 @@ import {
 	NOT_VALID_TOKEN_ERROR,
 	TOKEN_NOT_FOUND_ERROR,
 } from '../constants/auth.constants';
-import { urlTemplateParts } from '../constants/url-template-parts.constants';
+import { templateParts } from '../constants/template-parts.constants';
 
 interface NestJSRequestHeaders {
 	[key: string]: string | string[] | undefined;
@@ -65,7 +65,7 @@ export class RolesGuard implements CanActivate {
 		const hasAccess = requiredRoles.some((role) => payload.roles?.includes(role));
 		if (!hasAccess) {
 			throw new ForbiddenException(
-				NOT_AUTHORITY_ROLES_ERROR.replace(urlTemplateParts.id, requiredRoles.join(', ')),
+				NOT_AUTHORITY_ROLES_ERROR.replace(templateParts.id, requiredRoles.join(', ')),
 			);
 		}
 

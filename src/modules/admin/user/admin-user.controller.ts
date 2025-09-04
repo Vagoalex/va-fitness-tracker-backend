@@ -16,7 +16,7 @@ import { AdminController } from '../common/decorators/admin-controller.decorator
 import { UserDocument } from '../../shared/user/models/user.model';
 import { AdminUserService } from './admin-user.service';
 import { IdValidationPipe } from '../../../core/pipes/id-validation.pipe';
-import { urlTemplateParts } from '../../../core/constants/url-template-parts.constants';
+import { templateParts } from '../../../core/constants/template-parts.constants';
 import { UpdateUserDto } from '../../shared/user/dto/update-user.dto';
 import { SEARCHING_USER_NOT_FOUND_ERROR } from '../../shared/user/constants/user.constants';
 import { SafetyUserDocument } from '../../shared/user/models/safety-user.model';
@@ -49,7 +49,7 @@ export class AdminUserController {
 		const document = await this.adminUserService.findUserById(id);
 		if (!document) {
 			throw new NotFoundException(
-				SEARCHING_USER_NOT_FOUND_ERROR.replace(urlTemplateParts.id, id),
+				SEARCHING_USER_NOT_FOUND_ERROR.replace(templateParts.id, id),
 			);
 		}
 
@@ -65,7 +65,7 @@ export class AdminUserController {
 		const updatedDocument = await this.adminUserService.updateUserItem(id, dto);
 		if (!updatedDocument) {
 			throw new HttpException(
-				SEARCHING_USER_NOT_FOUND_ERROR.replace(urlTemplateParts.id, id),
+				SEARCHING_USER_NOT_FOUND_ERROR.replace(templateParts.id, id),
 				HttpStatus.NOT_FOUND,
 			);
 		}

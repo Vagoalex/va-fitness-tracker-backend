@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AdminCategoryService } from './admin-category.service';
-import { AdminCategoryController } from './admin-category.controller';
+import { AdminExerciseService } from './admin-exercise.service';
+import { AdminExerciseController } from './admin-exercise.controller';
 import { CategoryModel, CategorySchema } from '../../shared/category/models/category.model';
 import { CATEGORY_COLLECTION_NAME } from '../../shared/category/constants/category.constants';
+import { CategoryService } from '../../shared/category/category.service';
+import { CategoryController } from '../../shared/category/category.controller';
 
 @Module({
-	controllers: [AdminCategoryController],
+	controllers: [AdminExerciseController],
 	imports: [
 		MongooseModule.forFeature([
 			{
@@ -16,6 +18,6 @@ import { CATEGORY_COLLECTION_NAME } from '../../shared/category/constants/catego
 			},
 		]),
 	],
-	providers: [AdminCategoryService],
+	providers: [AdminExerciseService],
 })
-export class AdminCategoryModule {}
+export class AdminExerciseModule {}
