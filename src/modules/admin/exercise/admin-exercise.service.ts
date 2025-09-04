@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { CategoryService } from '../../shared/category/category.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { CategoryDocument } from '../../shared/category/models/category.model';
+import { ExerciseService } from '../../shared/exercise/exercise.service';
+import { CreateExerciseDto } from './dto/create-exercise.dto';
+import { ExerciseDocument } from '../../shared/exercise/models/exercise.model';
 
 @Injectable()
-export class AdminExerciseService extends CategoryService {
-	async createCategory(dto: CreateCategoryDto): Promise<CategoryDocument> {
-		const newCategory = new this.categoryModel(dto);
-		return newCategory.save();
+export class AdminExerciseService extends ExerciseService {
+	async createExercise(dto: CreateExerciseDto): Promise<ExerciseDocument> {
+		const newDocument = new this.exerciseModel(dto);
+		return newDocument.save();
 	}
 }

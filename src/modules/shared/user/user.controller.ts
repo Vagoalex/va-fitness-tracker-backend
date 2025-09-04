@@ -19,7 +19,7 @@ import { LoginDto } from '../../public/common/dto/login.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { DeleteMeRequestModel } from './models/delete-me-request.model';
 
-@Controller('user')
+@Controller('users')
 export class UserController {
 	constructor(protected readonly userService: UserService) {}
 

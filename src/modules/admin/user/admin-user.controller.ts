@@ -25,7 +25,7 @@ import { FindUsersQueryDto } from './dto/find-users-query.dto';
 import { RequireRoles } from '../../../core/decorators/roles.decorator';
 import { RoleTypes } from '../../../core/enums/RoleTypes';
 
-@AdminController('user')
+@AdminController('users')
 @RequireRoles(RoleTypes.Admin)
 @UseGuards(JwtAuthGuard)
 export class AdminUserController {

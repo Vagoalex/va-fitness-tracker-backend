@@ -8,7 +8,6 @@ import {
 } from '@nestjs/common';
 import { AdminController } from '../common/decorators/admin-controller.decorator';
 import { AdminExerciseTypeService } from './admin-exercise-type.service';
-import { CategoryDocument } from '../../shared/category/models/category.model';
 import { JwtAuthGuard } from '../../shared/auth/guards/jwt-auth.guard';
 import { RequireRoles } from '../../../core/decorators/roles.decorator';
 import { RoleTypes } from '../../../core/enums/RoleTypes';
@@ -19,23 +18,24 @@ import {
 	getAlreadyExistedBaseDataWithNameError,
 } from '../../shared/common/constants/api-errors.constants';
 import { ExerciseTypeController } from '../../shared/exercise-type/exercise-type.controller';
+import { ExerciseTypeDocument } from '../../shared/exercise-type/models/exercise-type.model';
 
-@AdminController('categories')
+@AdminController('exercise-types')
 @RequireRoles(RoleTypes.Admin)
 @UseGuards(JwtAuthGuard)
 export class AdminExerciseTypeController extends ExerciseTypeController {
-	constructor(private readonly adminCategoryService: AdminExerciseTypeService) {
-		super(adminCategoryService);
+	constructor(private readonly adminExerciseTypeService: AdminExerciseTypeService) {
+		super(adminExerciseTypeService);
 	}
 
 	/**
-	 * Создание новой категории
+	 * Создание нового упражнения
 	 */
 	@UsePipes(new ValidationPipe())
 	@Post()
-	async create(@Body() dto: CreateExerciseTypeDto): Promise<CategoryDocument> {
+	async create(@Body() dto: CreateExerciseTypeDto): Promise<ExerciseTypeDocument> {
 		const { nameExists, codeExists } =
-			await this.adminCategoryService.findNameOrCodeConflicts(dto);
+			await this.adminExerciseTypeService.findNameOrCodeConflicts(dto);
 
 		if (nameExists) {
 			throw new BadRequestException(
@@ -49,6 +49,6 @@ export class AdminExerciseTypeController extends ExerciseTypeController {
 			);
 		}
 
-		return await this.adminCategoryService.createExerciseType(dto);
+		return await this.adminExerciseTypeService.createExerciseType(dto);
 	}
 }
