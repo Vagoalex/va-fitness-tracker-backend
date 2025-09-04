@@ -1,5 +1,7 @@
 import { AdminUserModule } from './user/admin-user.module';
 import { AdminCategoryModule } from './category/admin-category.module';
+import { AdminExerciseTypeModule } from './exercise-type/admin-exercise-type.module';
+import { AdminExerciseModule } from './exercise/admin-exercise.module';
 
 /**
  * Коллекция модулей для админки
@@ -13,7 +15,12 @@ import { AdminCategoryModule } from './category/admin-category.module';
  * })
  * ```
  */
-export const ADMIN_MODULES = [AdminUserModule, AdminCategoryModule] as const;
+export const ADMIN_MODULES = [
+	AdminUserModule,
+	AdminCategoryModule,
+	AdminExerciseTypeModule,
+	AdminExerciseModule,
+] as const;
 
 // Для удобства импорта отдельных модулей
-export { AdminUserModule, AdminCategoryModule };
+export { AdminUserModule, AdminCategoryModule, AdminExerciseTypeModule };

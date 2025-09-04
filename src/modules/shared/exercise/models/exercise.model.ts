@@ -44,38 +44,38 @@ export class ExerciseModel {
 	/**
 	 * Пошаговая инструкция выполнения
 	 */
-	@Prop()
-	instructions?: string;
+	// @Prop()
+	// instructions?: string;
 
 	/**
 	 * Ссылка на изображение (Пока нет, так как на бэк не предназначено)
 	 */
-	@Prop()
-	imageUrl?: string;
+	// @Prop()
+	// imageUrl?: string;
 
 	/**
 	 * Ссылка на видео (Пока нет, так как на бэк не предназначено)
 	 */
-	@Prop()
-	videoUrl?: string;
+	// @Prop()
+	// videoUrl?: string;
 
 	/**
 	 * Сложность упражнения
 	 */
-	@Prop({
-		min: 1,
-		max: 5,
-		default: 3,
-	})
-	difficulty: number;
+	// @Prop({
+	// 	min: 1,
+	// 	max: 5,
+	// 	default: 3,
+	// })
+	// difficulty: number;
 
 	/**
 	 * Для какого уровня подходит
 	 */
-	@Prop({
-		enum: UserLevelTypes,
-	})
-	suitableFor: UserLevelTypes[];
+	// @Prop({
+	// 	enum: UserLevelTypes,
+	// })
+	// suitableFor: UserLevelTypes[];
 }
 
 export const ExerciseSchema: MSchema<ExerciseModel> = SchemaFactory.createForClass(ExerciseModel);
