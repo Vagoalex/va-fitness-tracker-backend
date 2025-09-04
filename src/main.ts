@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { RolesGuard } from './core/guards/roles.guard';
 import { JwtService } from '@nestjs/jwt';
 
+// TODO: реализовать нормальные ошибки и i18n
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
 	app.setGlobalPrefix('api');

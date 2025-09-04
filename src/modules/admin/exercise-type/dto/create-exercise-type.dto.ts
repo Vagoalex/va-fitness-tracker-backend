@@ -1,5 +1,6 @@
 import { IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsValidObjectId } from '../../../../core/validators/is-valid-objectid.validator';
 
 /**
  * Модель DTO типа упражнения (Входит в category)
@@ -45,6 +46,7 @@ export class CreateExerciseTypeDto {
 	 */
 	@ApiProperty({ example: '507f1f77bcf86cd799439011' })
 	@IsMongoId()
+	@IsValidObjectId() // Проверка валидности ID
 	@IsNotEmpty()
 	categoryId: string;
 }
