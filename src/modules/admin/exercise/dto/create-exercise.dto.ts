@@ -1,6 +1,10 @@
 import { IsMongoId, IsNotEmpty, IsOptional, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsValidObjectId } from '../../../../core/decorators/validation.decorator';
+import {
+	IsCodePattern,
+	IsString,
+	IsValidObjectId,
+} from '../../../../core/decorators/validation.decorator';
 import { EXERCISE_VALIDATION_ERRORS } from '../../../shared/exercise/constants/exercise-errors.constants';
 import { EXERCISE_CODE_PATTERN } from '../../../shared/exercise/constants/exercise.constants';
 
@@ -42,8 +46,9 @@ export class CreateExerciseDto {
 	 * (Пока что будет icon мэтчиться с названием иконки на фронте. В будущем перенесем добавление иконок на бэке)
 	 */
 	@ApiProperty({ example: 'wide_grip_pull_ups' })
-	@IsOptional()
 	@IsString()
+	@IsCodePattern()
+	@IsOptional()
 	icon?: string;
 
 	/**

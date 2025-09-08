@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from '../../../../core/decorators/validation.decorator';
+import { IsCodePattern, IsString } from '../../../../core/decorators/validation.decorator';
 
 export class CreateCategoryDto {
 	/**
@@ -35,7 +35,8 @@ export class CreateCategoryDto {
 	 * (Пока что будет icon мэтчиться с названием иконки на фронте. В будущем перенесем добавление иконок на бэке)
 	 */
 	@ApiProperty({ example: 'back' })
-	@IsOptional()
 	@IsString()
+	@IsCodePattern()
+	@IsOptional()
 	icon?: string;
 }

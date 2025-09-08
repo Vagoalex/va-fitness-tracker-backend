@@ -95,3 +95,5 @@ export function IsInt() {
 
 /** Декоратор для ObjectId (кастомная реализация) */
 export { IsValidObjectId } from '../validators/is-valid-objectid.validator';
+/** Декоратор для проверки code (кастомная реализация) */
+export { IsCodePattern } from '../validators/is-code-pattern.validator';

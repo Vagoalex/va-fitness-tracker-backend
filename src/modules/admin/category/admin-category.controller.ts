@@ -40,7 +40,6 @@ export class AdminCategoryController extends CategoryController {
 		if (nameExists) {
 			throw new BadRequestException(ALREADY_EXISTED_CATEGORY_WITH_NAME_ERROR);
 		}
-
 		if (codeExists) {
 			throw new BadRequestException(ALREADY_EXISTED_CATEGORY_WITH_CODE_ERROR);
 		}

@@ -15,4 +15,6 @@ export const VALIDATION_ERRORS = {
 	IS_VALID_OBJECT_ID: 'Поле $property должно быть корректным ObjectId',
 	IS_POSITIVE: 'Поле $property должно быть положительным числом',
 	IS_INT: 'Поле $property должно быть целым числом',
+	CODE_PATTERN:
+		'Поле $property должно содержать только латинские буквы в нижнем регистре, цифры и одиночные подчеркивания между словами, не начинаться и не заканчиваться подчеркиванием',
 } as const;

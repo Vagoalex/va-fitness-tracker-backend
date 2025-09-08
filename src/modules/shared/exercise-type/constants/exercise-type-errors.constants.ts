@@ -21,4 +21,5 @@ export const EXERCISE_TYPE_VALIDATION_ERRORS = {
 	CODE_PATTERN: `Код типа упражнения должен содержать только латиницу в lowercase, цифры и нижние подчеркивания`,
 	NAME_REQUIRED: 'Название типа упражнения обязательно',
 	CODE_REQUIRED: 'Код типа упражнения обязателен',
+	CATEGORY_ID_REQUIRED: 'Категория типа упражнения обязательна',
 };

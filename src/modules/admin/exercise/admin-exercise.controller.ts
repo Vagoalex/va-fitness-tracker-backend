@@ -30,7 +30,6 @@ export class AdminExerciseController extends ExerciseController {
 		if (nameExists) {
 			throw new BadRequestException(EXERCISE_ERRORS.ALREADY_EXISTED_WITH_NAME);
 		}
-
 		if (codeExists) {
 			throw new BadRequestException(EXERCISE_ERRORS.ALREADY_EXISTED_WITH_CODE);
 		}
