@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsString } from '../../../../core/decorators/validation.decorator';
 
 export class LoginDto {
 	@IsString()

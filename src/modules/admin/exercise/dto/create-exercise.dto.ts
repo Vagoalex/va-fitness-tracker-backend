@@ -1,5 +1,8 @@
-import { IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsOptional, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsValidObjectId } from '../../../../core/decorators/validation.decorator';
+import { EXERCISE_VALIDATION_ERRORS } from '../../../shared/exercise/constants/exercise-errors.constants';
+import { EXERCISE_CODE_PATTERN } from '../../../shared/exercise/constants/exercise.constants';
 
 /**
  * Модель DTO конкретного упражнения - конечное состояние (Входит в exercise-type)
@@ -12,7 +15,10 @@ export class CreateExerciseDto {
 	 */
 	@ApiProperty({ example: 'wide_grip_pull_ups' })
 	@IsString()
-	@IsNotEmpty()
+	@IsNotEmpty({ message: EXERCISE_VALIDATION_ERRORS.CODE_REQUIRED })
+	@Matches(EXERCISE_CODE_PATTERN, {
+		message: EXERCISE_VALIDATION_ERRORS.CODE_PATTERN,
+	})
 	code: string;
 
 	/**
@@ -21,7 +27,7 @@ export class CreateExerciseDto {
 	 */
 	@ApiProperty({ example: 'Подтягивания широким хватом' })
 	@IsString()
-	@IsNotEmpty()
+	@IsNotEmpty({ message: EXERCISE_VALIDATION_ERRORS.NAME_REQUIRED })
 	name: string;
 
 	/**
@@ -46,5 +52,6 @@ export class CreateExerciseDto {
 	@ApiProperty({ example: '507f1f77bcf86cd799439011' })
 	@IsMongoId()
 	@IsNotEmpty()
+	@IsValidObjectId()
 	exerciseTypeId: string;
 }

@@ -1,9 +1,9 @@
 import { Types } from 'mongoose';
 import { BadRequestException } from '@nestjs/common';
-import { NOT_VALID_FORMAT_ID_VALIDATION_ERROR } from '../constants/errors.constants';
+import { CORE_ERRORS } from '../errors/errors.constants';
 
 export const checkObjectId = (id: string) => {
 	if (!Types.ObjectId.isValid(id)) {
-		throw new BadRequestException(NOT_VALID_FORMAT_ID_VALIDATION_ERROR);
+		throw new BadRequestException(CORE_ERRORS.NOT_VALID_FORMAT_ID_VALIDATION_ERROR);
 	}
 };

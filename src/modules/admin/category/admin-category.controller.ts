@@ -18,6 +18,7 @@ import { JwtAuthGuard } from '../../shared/auth/guards/jwt-auth.guard';
 import { CategoryController } from '../../shared/category/category.controller';
 import { RequireRoles } from '../../../core/decorators/roles.decorator';
 import { RoleTypes } from '../../../core/enums/RoleTypes';
+import { UseValidationPipe } from '../../../core/decorators/use-validation-pipe.decorator';
 
 @AdminController('categories')
 @RequireRoles(RoleTypes.Admin)
@@ -30,7 +31,7 @@ export class AdminCategoryController extends CategoryController {
 	/**
 	 * Создание новой категории
 	 */
-	@UsePipes(new ValidationPipe())
+	@UseValidationPipe()
 	@Post()
 	async create(@Body() dto: CreateCategoryDto): Promise<CategoryDocument> {
 		const { nameExists, codeExists } =

@@ -1,0 +1,18 @@
+export const VALIDATION_ERRORS = {
+	IS_STRING: 'Поле $property должно быть строкой',
+	IS_NUMBER: 'Поле $property должно быть числом',
+	IS_ENUM: 'Поле $property должно быть одним из значений: $constraint1',
+	IS_NOT_EMPTY: 'Поле $property не должно быть пустым',
+	IS_EMAIL: 'Поле $property должно быть корректным email',
+	MIN_LENGTH: 'Поле $property должно содержать не менее $constraint1 символов',
+	MAX_LENGTH: 'Поле $property должно содержать не более $constraint1 символов',
+	MIN: 'Значение поля $property должно быть не менее $constraint1',
+	MAX: 'Значение поля $property должно быть не более $constraint1',
+	IS_DATE: 'Поле $property должно быть датой',
+	IS_BOOLEAN: 'Поле $property должно быть логическим значением',
+	IS_ARRAY: 'Поле $property должно быть массивом',
+	IS_MONGO_ID: 'Поле $property должно быть корректным MongoDB ID',
+	IS_VALID_OBJECT_ID: 'Поле $property должно быть корректным ObjectId',
+	IS_POSITIVE: 'Поле $property должно быть положительным числом',
+	IS_INT: 'Поле $property должно быть целым числом',
+} as const;

@@ -1,8 +1,9 @@
-import { IsOptional, IsString, IsArray, IsNumber, IsEnum } from 'class-validator';
+import { IsOptional, IsArray, IsNumber, IsEnum } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 import { IsIn } from 'class-validator';
 import { ADMIN_ROLES } from '../../../../core/constants/auth.constants';
+import { IsString } from '../../../../core/decorators/validation.decorator';
 
 export class FindUsersQueryDto {
 	@IsOptional()

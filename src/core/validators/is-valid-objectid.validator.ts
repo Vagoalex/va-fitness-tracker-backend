@@ -1,4 +1,3 @@
-// shared/validators/is-valid-objectid.validator.ts
 import {
 	ValidatorConstraint,
 	ValidatorConstraintInterface,
@@ -6,6 +5,7 @@ import {
 	registerDecorator,
 } from 'class-validator';
 import { isValidObjectId } from 'mongoose';
+import { CORE_ERRORS } from '../errors/errors.constants';
 
 @ValidatorConstraint({ name: 'isValidObjectId', async: false })
 export class IsValidObjectIdConstraint implements ValidatorConstraintInterface {
@@ -14,7 +14,7 @@ export class IsValidObjectIdConstraint implements ValidatorConstraintInterface {
 	}
 
 	defaultMessage(args: ValidationArguments) {
-		return 'Некорректный формат ID';
+		return CORE_ERRORS.NOT_VALID_FORMAT_ID_VALIDATION_ERROR;
 	}
 }
 

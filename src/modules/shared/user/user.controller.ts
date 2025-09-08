@@ -18,6 +18,7 @@ import { IdValidationPipe } from '../../../core/pipes/id-validation.pipe';
 import { LoginDto } from '../../public/common/dto/login.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { DeleteMeRequestModel } from './models/delete-me-request.model';
+import { UseValidationPipe } from '../../../core/decorators/use-validation-pipe.decorator';
 
 @Controller('users')
 export class UserController {
@@ -26,7 +27,7 @@ export class UserController {
 	/**
 	 * Создание пользователя
 	 */
-	@UsePipes(new ValidationPipe())
+	@UseValidationPipe()
 	@UseGuards(JwtAuthGuard)
 	@Post()
 	async create(@Body() dto: LoginDto): Promise<UserDocument> {

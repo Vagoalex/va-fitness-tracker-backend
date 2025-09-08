@@ -1,6 +1,7 @@
-import { IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsValidObjectId } from '../../../../core/validators/is-valid-objectid.validator';
+import { EXERCISE_TYPE_VALIDATION_ERRORS } from '../../../shared/exercise-type/constants/exercise-type-errors.constants';
+import { IsString, IsValidObjectId } from '../../../../core/decorators/validation.decorator';
 
 /**
  * Модель DTO типа упражнения (Входит в category)
@@ -13,7 +14,7 @@ export class CreateExerciseTypeDto {
 	 */
 	@ApiProperty({ example: 'pull_up' })
 	@IsString()
-	@IsNotEmpty()
+	@IsNotEmpty({ message: EXERCISE_TYPE_VALIDATION_ERRORS.CODE_REQUIRED })
 	code: string;
 
 	/**
@@ -22,7 +23,7 @@ export class CreateExerciseTypeDto {
 	 */
 	@ApiProperty({ example: 'Подтягивания' })
 	@IsString()
-	@IsNotEmpty()
+	@IsNotEmpty({ message: EXERCISE_TYPE_VALIDATION_ERRORS.NAME_REQUIRED })
 	name: string;
 
 	/**

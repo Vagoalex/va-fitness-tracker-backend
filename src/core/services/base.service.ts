@@ -1,6 +1,6 @@
 import { Model, Document, isValidObjectId } from 'mongoose';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { getDocumentByIdNotFoundError } from '../../modules/shared/common/constants/api-errors.constants';
+import { getDocumentByIdNotFoundError } from '../errors/errors.helper';
 
 export type NameCodeDto = { name?: string; code?: string };
 

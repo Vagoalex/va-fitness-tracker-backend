@@ -1,6 +1,7 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsOptional } from 'class-validator';
 import { UserGenderTypes } from '../enums/UserGenderTypes';
 import { UserStatusTypes } from '../enums/UserStatusTypes';
+import { IsString, IsEnum } from '../../../../core/decorators/validation.decorator';
 
 export class UpdateUserDto {
 	@IsOptional()

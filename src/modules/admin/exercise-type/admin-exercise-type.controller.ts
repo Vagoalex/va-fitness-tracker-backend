@@ -12,13 +12,10 @@ import { JwtAuthGuard } from '../../shared/auth/guards/jwt-auth.guard';
 import { RequireRoles } from '../../../core/decorators/roles.decorator';
 import { RoleTypes } from '../../../core/enums/RoleTypes';
 import { CreateExerciseTypeDto } from './dto/create-exercise-type.dto';
-import { EXERCISE_TYPE_NAME } from './constants/exercise-type.constants';
-import {
-	getAlreadyExistedBaseDataWithCodeError,
-	getAlreadyExistedBaseDataWithNameError,
-} from '../../shared/common/constants/api-errors.constants';
 import { ExerciseTypeController } from '../../shared/exercise-type/exercise-type.controller';
 import { ExerciseTypeDocument } from '../../shared/exercise-type/models/exercise-type.model';
+import { EXERCISE_TYPE_ERRORS } from '../../shared/exercise-type/constants/exercise-type-errors.constants';
+import { UseValidationPipe } from '../../../core/decorators/use-validation-pipe.decorator';
 
 @AdminController('exercise-types')
 @RequireRoles(RoleTypes.Admin)
@@ -31,22 +28,18 @@ export class AdminExerciseTypeController extends ExerciseTypeController {
 	/**
 	 * Создание нового упражнения
 	 */
-	@UsePipes(new ValidationPipe())
+	@UseValidationPipe()
 	@Post()
 	async create(@Body() dto: CreateExerciseTypeDto): Promise<ExerciseTypeDocument> {
 		const { nameExists, codeExists } =
 			await this.adminExerciseTypeService.findNameOrCodeConflicts(dto);
 
 		if (nameExists) {
-			throw new BadRequestException(
-				getAlreadyExistedBaseDataWithNameError(EXERCISE_TYPE_NAME),
-			);
+			throw new BadRequestException(EXERCISE_TYPE_ERRORS.ALREADY_EXISTED_WITH_NAME);
 		}
 
 		if (codeExists) {
-			throw new BadRequestException(
-				getAlreadyExistedBaseDataWithCodeError(EXERCISE_TYPE_NAME),
-			);
+			throw new BadRequestException(EXERCISE_TYPE_ERRORS.ALREADY_EXISTED_WITH_CODE);
 		}
 
 		return await this.adminExerciseTypeService.createExerciseType(dto);
