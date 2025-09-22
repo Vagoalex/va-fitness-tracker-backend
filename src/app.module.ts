@@ -7,7 +7,7 @@ import { ADMIN_MODULES, PUBLIC_MODULES, SHARED_MODULES } from './modules';
 import { JwtModule } from '@nestjs/jwt';
 import { getJWTConfig } from './core/configs/jwt.config';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './modules/shared/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from './core/guards/jwt-auth.guard';
 import { RolesGuard } from './core/guards/roles.guard';
 
 @Module({
@@ -34,11 +34,11 @@ import { RolesGuard } from './core/guards/roles.guard';
 	providers: [
 		{
 			provide: APP_GUARD,
-			useClass: JwtAuthGuard,
+			useClass: JwtAuthGuard, // Глобальная аутентификация
 		},
 		{
 			provide: APP_GUARD,
-			useClass: RolesGuard,
+			useClass: RolesGuard, // Глобальная авторизация
 		},
 	],
 })

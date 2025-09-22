@@ -20,7 +20,7 @@ import { templateParts } from '../../../core/constants/template-parts.constants'
 import { UpdateUserDto } from '../../shared/user/dto/update-user.dto';
 import { SEARCHING_USER_NOT_FOUND_ERROR } from '../../shared/user/constants/user.constants';
 import { SafetyUserDocument } from '../../shared/user/models/safety-user.model';
-import { JwtAuthGuard } from '../../shared/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../../core/guards/jwt-auth.guard';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
 import { RequireRoles } from '../../../core/decorators/roles.decorator';
 import { RoleTypes } from '../../../core/enums/RoleTypes';

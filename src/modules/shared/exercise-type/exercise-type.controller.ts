@@ -8,7 +8,7 @@ import {
 	Query,
 	UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../../core/guards/jwt-auth.guard';
 import { ExerciseTypeService } from './exercise-type.service';
 import { ExerciseTypeDocument } from './models/exercise-type.model';
 

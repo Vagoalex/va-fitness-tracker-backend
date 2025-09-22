@@ -2,9 +2,10 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
-import { INVALID_OR_EXPIRED_TOKEN_ERROR, JwtTypeName } from '../constants/auth.constants';
+import { INVALID_OR_EXPIRED_TOKEN_ERROR } from '../constants/auth.constants';
 import { AuthUserModel } from '../models/auth-user.model';
 import { UserService } from '../../user/user.service';
+import { JwtTypeName } from '../../../../core/constants/auth.constants';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, JwtTypeName) {

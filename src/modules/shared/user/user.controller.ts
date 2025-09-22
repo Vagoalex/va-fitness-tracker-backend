@@ -16,7 +16,7 @@ import { UserDocument } from './models/user.model';
 import { ALREADY_EXISTED_USER_ERROR, USER_NOT_FOUND_ERROR } from './constants/user.constants';
 import { IdValidationPipe } from '../../../core/pipes/id-validation.pipe';
 import { LoginDto } from '../../public/common/dto/login.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../../core/guards/jwt-auth.guard';
 import { DeleteMeRequestModel } from './models/delete-me-request.model';
 import { UseValidationPipe } from '../../../core/decorators/use-validation-pipe.decorator';
 

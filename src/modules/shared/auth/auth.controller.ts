@@ -7,16 +7,15 @@ import {
 	HttpStatus,
 	Post,
 	UseGuards,
-	UsePipes,
-	ValidationPipe,
 	Controller,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ALREADY_REGISTERED_ERROR } from './constants/auth.constants';
 import { LoginDto } from '../../public/common/dto/login.dto';
 import { AuthUserModel } from './models/auth-user.model';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../../core/guards/jwt-auth.guard';
 import { UserService } from '../user/user.service';
+import { UseValidationPipe } from '../../../core/decorators/use-validation-pipe.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -25,7 +24,7 @@ export class AuthController {
 		private readonly userService: UserService,
 	) {}
 
-	@UsePipes(new ValidationPipe())
+	@UseValidationPipe()
 	@Post('register')
 	async register(@Body() dto: LoginDto) {
 		const existedUser = await this.userService.findUserByEmail(dto.login);
@@ -36,7 +35,6 @@ export class AuthController {
 		return await this.userService.createUser(dto);
 	}
 
-	@UsePipes(new ValidationPipe())
 	@HttpCode(HttpStatus.OK)
 	@Post('login')
 	async login(@Body() dto: LoginDto): Promise<AuthUserModel> {

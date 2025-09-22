@@ -1,7 +1,7 @@
 import { Body, UseGuards, BadRequestException, Post } from '@nestjs/common';
 import { AdminController } from '../common/decorators/admin-controller.decorator';
 import { AdminExerciseService } from './admin-exercise.service';
-import { JwtAuthGuard } from '../../shared/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../../core/guards/jwt-auth.guard';
 import { RequireRoles } from '../../../core/decorators/roles.decorator';
 import { RoleTypes } from '../../../core/enums/RoleTypes';
 import { ExerciseController } from '../../shared/exercise/exercise.controller';

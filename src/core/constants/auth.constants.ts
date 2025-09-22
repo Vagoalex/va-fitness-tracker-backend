@@ -9,3 +9,5 @@ export const NOT_AUTHORITY_ROLES_ERROR = `Недостаточно прав. Т�
 export const ALL_ROLES: RoleTypes[] = [RoleTypes.User, RoleTypes.Admin, RoleTypes.Trainer];
 export const PUBLIC_ROLES: RoleTypes[] = [RoleTypes.User, RoleTypes.Trainer];
 export const ADMIN_ROLES: RoleTypes[] = ALL_ROLES;
+
+export const JwtTypeName = 'jwt';

@@ -14,7 +14,7 @@ import {
 	ALREADY_EXISTED_CATEGORY_WITH_CODE_ERROR,
 	ALREADY_EXISTED_CATEGORY_WITH_NAME_ERROR,
 } from './constants/category.constants';
-import { JwtAuthGuard } from '../../shared/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../../core/guards/jwt-auth.guard';
 import { CategoryController } from '../../shared/category/category.controller';
 import { RequireRoles } from '../../../core/decorators/roles.decorator';
 import { RoleTypes } from '../../../core/enums/RoleTypes';

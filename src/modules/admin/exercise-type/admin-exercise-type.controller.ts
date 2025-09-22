@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { AdminController } from '../common/decorators/admin-controller.decorator';
 import { AdminExerciseTypeService } from './admin-exercise-type.service';
-import { JwtAuthGuard } from '../../shared/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../../core/guards/jwt-auth.guard';
 import { RequireRoles } from '../../../core/decorators/roles.decorator';
 import { RoleTypes } from '../../../core/enums/RoleTypes';
 import { CreateExerciseTypeDto } from './dto/create-exercise-type.dto';
