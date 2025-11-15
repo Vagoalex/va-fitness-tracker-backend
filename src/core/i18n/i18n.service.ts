@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { I18nService as NestI18nService, I18nContext } from 'nestjs-i18n';
-import { TranslationKey } from './types/translations.types';
+import { TranslationKey } from './types';
+import { AVAILABLE_LANGUAGES } from './constants';
 
 /**
  * Типизированный сервис для работы с переводами
@@ -65,5 +66,19 @@ export class TypedI18nService {
     } catch {
       return 'en';
     }
+  }
+
+  /**
+   * Доступные языки
+   */
+  get availableLanguages(): string[] {
+    return [...AVAILABLE_LANGUAGES];
+  }
+
+  /**
+   * Проверка поддержки языка
+   */
+  isLangSupported(lang: string): boolean {
+    return this.availableLanguages.includes(lang);
   }
 }

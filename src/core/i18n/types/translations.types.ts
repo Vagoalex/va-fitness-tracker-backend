@@ -3,12 +3,6 @@
  * Обеспечивают автодополнение и типобезопасность для ключей переводов
  */
 
-import {
-  AUTH_TRANSLATION_KEYS,
-  COMMON_TRANSLATION_KEYS,
-  VALIDATION_TRANSLATION_KEYS,
-} from '../constants/translation-keys.constants';
-
 /**
  * Структура переводов auth.json
  */
