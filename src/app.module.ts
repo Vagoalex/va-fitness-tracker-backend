@@ -1,45 +1,54 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { MongooseModule } from '@nestjs/mongoose';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { getMongoConfig } from './core/configs/mongo.config';
-import { ADMIN_MODULES, PUBLIC_MODULES, SHARED_MODULES } from './modules';
-import { JwtModule } from '@nestjs/jwt';
-import { getJWTConfig } from './core/configs/jwt.config';
-import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './core/guards/jwt-auth.guard';
-import { RolesGuard } from './core/guards/roles.guard';
+import { ConfigModule } from '@nestjs/config';
+import { APP_FILTER, APP_PIPE, APP_GUARD } from '@nestjs/core';
+
+import { appConfig, databaseConfig, jwtConfig, validate } from './core/config';
+
+import { DatabaseModule } from './core/database/database.module';
+import { LoggerModule } from './core/logger/logger.module';
+import { I18nModule } from './core/i18n';
+
+import { GlobalExceptionFilter } from './common/filters';
+import { ValidationPipe } from './common/pipes';
+import { RolesGuard, JwtAuthGuard } from './core/guards';
+
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
-	imports: [
-		// Глобальная настройка модулей
-		ConfigModule.forRoot({ isGlobal: true }),
-		MongooseModule.forRootAsync({
-			imports: [ConfigModule],
-			inject: [ConfigService],
-			useFactory: getMongoConfig,
-		}),
-		JwtModule.registerAsync({
-			imports: [ConfigModule],
-			inject: [ConfigService],
-			useFactory: getJWTConfig,
-		}),
+  imports: [
+    // Configuration
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validate,
+      load: [appConfig, databaseConfig, jwtConfig],
+      envFilePath: ['.env.local', '.env'],
+    }),
 
-		// Подключение модулей
-		...SHARED_MODULES,
-		...ADMIN_MODULES,
-		...PUBLIC_MODULES,
-	],
-	controllers: [AppController],
-	providers: [
-		{
-			provide: APP_GUARD,
-			useClass: JwtAuthGuard, // Глобальная аутентификация
-		},
-		{
-			provide: APP_GUARD,
-			useClass: RolesGuard, // Глобальная авторизация
-		},
-	],
+    // Core modules
+    DatabaseModule,
+    I18nModule,
+    LoggerModule,
+
+    // Feature modules
+    AuthModule,
+  ],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
+    },
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard, // Глобальная аутентификация
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard, // Глобальная авторизация
+    },
+  ],
 })
 export class AppModule {}

@@ -13,11 +13,14 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
+  	"lint:check": "eslint \"{src,apps,libs,test}/**/*.ts\"",
+  	"test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+  	"prebuild": "rimraf dist",
+	"postbuild": "echo 'Build completed'"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -32,6 +35,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "mongoose": "^8.10.1",
+    "nestjs-i18n": "^10.5.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
@@ -83,6 +87,6 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironmentTypes": "node"
   }
 }

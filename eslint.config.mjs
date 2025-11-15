@@ -35,13 +35,13 @@ export default tseslint.config(
         'warn',
         {
           singleQuote: true,
-          useTabs: true,
+          useTabs: false,
           semi: true,
           trailingComma: 'all',
           bracketSpacing: true,
           printWidth: 100,
           endOfLine: 'auto',
-          tabWidth: 4,
+          tabWidth: 2,
         },
       ],
       'react-hooks/exhaustive-deps': 'off',
@@ -54,7 +54,7 @@ export default tseslint.config(
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-empty-interface': 'off',
       '@typescript-eslint/ban-types': 'off',
-      '@typescript-eslint/no-unsafe-call': "off"
+      '@typescript-eslint/no-unsafe-call': 'off',
     },
   },
 );

@@ -1,14 +1,15 @@
-import { NestFactory, Reflector } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
-import { RolesGuard } from './core/guards/roles.guard';
-import { JwtService } from '@nestjs/jwt';
 
-// TODO: реализовать нормальные ошибки и i18n
 async function bootstrap() {
-	const app = await NestFactory.create(AppModule);
-	app.setGlobalPrefix('api');
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-	await app.listen(process.env.PORT ?? 3000);
+  app.setGlobalPrefix('api');
+
+  await app.listen(process.env.PORT || 3000);
+  console.log(`Application is running on: ${await app.getUrl()}`);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 bootstrap();
