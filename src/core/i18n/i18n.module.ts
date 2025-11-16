@@ -23,24 +23,12 @@ import { join } from 'path';
     NestI18nModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService<AllConfig>) => {
-        const isDevelopment = configService.get('app.isDevelopment', { infer: true });
-
         return {
           fallbackLanguage: I18N_CONFIG.defaultLanguage,
           loader: I18nJsonLoader,
           loaderOptions: {
             path: join(__dirname, 'locales'),
-            watch: isDevelopment,
           },
-          // Автогенерация типов
-          typesOutputPath: join(
-            process.cwd(),
-            'src',
-            'core',
-            'i18n',
-            'generated',
-            'i18n.generated.ts',
-          ),
         };
       },
       resolvers: [

@@ -67,6 +67,18 @@ export type I18nTranslations = {\n`;
   }
 
   typesContent += `};\n\n`;
+
+  // === ДОБАВЛЕНО: генерация I18N_NAMESPACES ===
+  const namespaceNames = namespaceFiles.map((file) => file.replace('.json', ''));
+  typesContent += `export const I18N_NAMESPACES = [\n`;
+  namespaceNames.forEach((ns) => {
+    typesContent += `  '${ns}',\n`;
+  });
+  typesContent += `] as const;\n\n`;
+
+  typesContent += `export type I18nNamespace = typeof I18N_NAMESPACES[number];\n\n`;
+  // === КОНЕЦ ДОБАВЛЕНИЯ ===
+
   typesContent += `export type I18nPath = Path<I18nTranslations>;\n`;
 
   fs.writeFileSync(outputPath, typesContent);

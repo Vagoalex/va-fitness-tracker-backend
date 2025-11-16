@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { I18nContext, I18nService as NestI18nService } from 'nestjs-i18n';
-import { I18nTranslations } from './generated/i18n.generated';
+import { I18nTranslations, I18nPath } from './generated/i18n.generated';
 import { I18N_CONFIG, AppLanguage } from './constants';
 
 // Вспомогательные типы для глубоких ключей
@@ -41,6 +41,27 @@ export class I18nService {
       lang: options?.lang || I18nContext.current()?.lang,
       args: options?.args,
       defaultValue: options?.defaultValue,
+    });
+  }
+
+  /**
+   * Универсальный метод для перевода по полному пути
+   */
+  translatePath(
+    path: I18nPath,
+    options?: {
+      lang?: AppLanguage;
+      args?: Record<string, any>;
+      defaultValue?: string;
+    },
+  ): string {
+    const [namespace, ...keyParts] = path.split('.');
+    const key = keyParts.join('.') as any;
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    return this.t(namespace as keyof I18nTranslations, key, {
+      ...options,
+      defaultValue: options?.defaultValue || path,
     });
   }
 

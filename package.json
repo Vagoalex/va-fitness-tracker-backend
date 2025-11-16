@@ -8,7 +8,7 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "i18n:generate": "node scripts/generate-i18n.js",
+    "i18n:generate": "node scripts/generate-i18n.js && npx eslint \"src/core/i18n/generated/i18n.generated.ts\" --fix",
     "start": "nest start",
     "prestart:dev": "npm run i18n:generate",
     "start:dev": "nest start --watch",
