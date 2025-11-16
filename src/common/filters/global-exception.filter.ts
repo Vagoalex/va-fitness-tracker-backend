@@ -7,19 +7,10 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { I18nContext } from 'nestjs-i18n';
+import { I18nService, I18nPath } from '../../core/i18n';
 import { AppLoggerService } from '../../core/logger/logger.service';
-import {
-  AUTH_TRANSLATION_KEYS,
-  COMMON_TRANSLATION_KEYS,
-  VALIDATION_TRANSLATION_KEYS,
-  CommonTranslationKey,
-  TranslationKey,
-} from '../../core/i18n';
 
-/**
- * Интерфейсы для типизации ответов исключений
- */
+// Типы для исключений
 interface HttpExceptionResponse {
   message?: string | string[];
   error?: string;
@@ -30,9 +21,6 @@ interface ValidationErrorResponse extends HttpExceptionResponse {
   errors?: unknown[];
 }
 
-/**
- * Стандартизированный ответ об ошибке
- */
 interface ErrorResponse {
   statusCode: number;
   message: string;
@@ -41,9 +29,33 @@ interface ErrorResponse {
   details?: unknown;
 }
 
+// Используем типы из I18nService
+type NestedTranslationKeys = Parameters<typeof I18nService.prototype.t>[1];
+
+// Вспомогательная функция для безопасного перевода
+const safeTranslate = (i18n: I18nService, path: I18nPath, fallback: string): string => {
+  try {
+    const parts = path.split('.');
+    const namespace = parts[0] as 'auth' | 'common' | 'validation';
+    const key = parts.slice(1).join('.') as NestedTranslationKeys;
+
+    if (!['auth', 'common', 'validation'].includes(namespace)) {
+      return fallback;
+    }
+
+    // Используем универсальный метод t из I18nService
+    return i18n.t(namespace, key, { defaultValue: fallback });
+  } catch {
+    return fallback;
+  }
+};
+
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
-  constructor(private readonly logger: AppLoggerService) {}
+  constructor(
+    private readonly logger: AppLoggerService,
+    private readonly i18n: I18nService,
+  ) {}
 
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
@@ -86,19 +98,18 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   }
 
   private extractMessageFromException(
-    exceptionResponse: string | object,
+    exceptionResponse: string | HttpExceptionResponse,
     status: number,
-  ): TranslationKey {
+  ): I18nPath {
     if (typeof exceptionResponse === 'string') {
       return this.isTranslationKey(exceptionResponse)
         ? exceptionResponse
         : this.getStatusTranslationKey(status);
     }
 
-    const responseObj = exceptionResponse as HttpExceptionResponse;
-    const rawMessage = Array.isArray(responseObj.message)
-      ? responseObj.message[0]
-      : responseObj.message;
+    const rawMessage = Array.isArray(exceptionResponse.message)
+      ? exceptionResponse.message[0]
+      : exceptionResponse.message;
 
     if (rawMessage && this.isTranslationKey(rawMessage)) {
       return rawMessage;
@@ -112,7 +123,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     baseResponse: Omit<ErrorResponse, 'message'>,
   ): ErrorResponse {
     const exceptionResponse = exception.getResponse();
-    let message: TranslationKey = COMMON_TRANSLATION_KEYS.errors.validation_failed;
+    let message: I18nPath = 'common.errors.validation_failed';
     let details: unknown = undefined;
 
     if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
@@ -133,18 +144,18 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   }
 
   private processValidationErrors(messages: string[]): {
-    translatedMessage: TranslationKey;
+    translatedMessage: I18nPath;
     errors: string[];
   } {
     const translatedErrors: string[] = [];
-    let firstTranslatedMessage: TranslationKey = COMMON_TRANSLATION_KEYS.errors.validation_failed;
+    let firstTranslatedMessage: I18nPath = 'common.errors.validation_failed';
 
     for (const error of messages) {
       if (this.isTranslationKey(error)) {
         const translated = this.translateMessage(error, HttpStatus.BAD_REQUEST);
         translatedErrors.push(translated);
 
-        if (firstTranslatedMessage === COMMON_TRANSLATION_KEYS.errors.validation_failed) {
+        if (firstTranslatedMessage === 'common.errors.validation_failed') {
           firstTranslatedMessage = error;
         }
       } else {
@@ -158,25 +169,18 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     };
   }
 
-  private isTranslationKey(message: string): message is TranslationKey {
-    const allTranslationKeys = [
-      ...Object.values(AUTH_TRANSLATION_KEYS.errors),
-      ...Object.values(COMMON_TRANSLATION_KEYS.errors),
-      ...Object.values(VALIDATION_TRANSLATION_KEYS),
-    ] as string[];
-
+  private isTranslationKey(message: string): message is I18nPath {
     return (
       message.startsWith('auth.') ||
       message.startsWith('common.') ||
-      message.startsWith('validation.') ||
-      allTranslationKeys.includes(message)
+      message.startsWith('validation.')
     );
   }
 
   private handleUnknownException(exception: unknown, request: Request): ErrorResponse {
     const isProduction = process.env.NODE_ENV === 'production';
 
-    const message: TranslationKey = COMMON_TRANSLATION_KEYS.errors.internal_error;
+    const message: I18nPath = 'common.errors.internal_error';
 
     return {
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -187,19 +191,15 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     };
   }
 
-  private translateMessage(message: TranslationKey, status: number): string {
+  private translateMessage(message: I18nPath, status: number): string {
     try {
-      const i18n = I18nContext.current();
-      if (!i18n) {
-        return message;
-      }
-
-      const translated = i18n.translate(message);
+      // Используем безопасную функцию перевода
+      const translated = safeTranslate(this.i18n, message, message);
 
       if (translated === message) {
+        // Если перевод не удался, используем fallback по статусу
         const statusKey = this.getStatusTranslationKey(status);
-        const statusTranslated = i18n.translate(statusKey);
-        return statusTranslated === statusKey ? message : statusTranslated;
+        return safeTranslate(this.i18n, statusKey, message);
       }
 
       return translated;
@@ -213,16 +213,16 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     }
   }
 
-  private getStatusTranslationKey(status: number): CommonTranslationKey {
-    const statusMap: Record<number, CommonTranslationKey> = {
-      400: COMMON_TRANSLATION_KEYS.errors.bad_request,
-      401: COMMON_TRANSLATION_KEYS.errors.unauthorized,
-      403: COMMON_TRANSLATION_KEYS.errors.forbidden,
-      404: COMMON_TRANSLATION_KEYS.errors.not_found,
-      409: COMMON_TRANSLATION_KEYS.errors.conflict,
-      500: COMMON_TRANSLATION_KEYS.errors.internal_error,
+  private getStatusTranslationKey(status: number): I18nPath {
+    const statusMap: Record<number, I18nPath> = {
+      400: 'common.errors.bad_request',
+      401: 'common.errors.unauthorized',
+      403: 'common.errors.forbidden',
+      404: 'common.errors.not_found',
+      409: 'common.errors.conflict',
+      500: 'common.errors.internal_error',
     };
-    return statusMap[status] || COMMON_TRANSLATION_KEYS.errors.internal_error;
+    return statusMap[status] || 'common.errors.internal_error';
   }
 
   private getErrorDetails(exception: unknown): unknown {

@@ -2,6 +2,9 @@ import { plainToInstance } from 'class-transformer';
 import { IsNumber, IsOptional, IsString, validateSync } from 'class-validator';
 import { Environment } from '../../types/global.types';
 
+/**
+ * Класс валидации переменных окружения
+ */
 class EnvironmentTypesVariables {
   @IsString()
   NODE_ENV: Environment;
@@ -51,6 +54,10 @@ class EnvironmentTypesVariables {
   PASSWORD_MIN_LENGTH: number;
 }
 
+/**
+ * Функция валидации конфигурации evironment
+ * @param config
+ */
 export function validate(config: Record<string, unknown>) {
   const validatedConfig = plainToInstance(EnvironmentTypesVariables, config, {
     enableImplicitConversion: true,

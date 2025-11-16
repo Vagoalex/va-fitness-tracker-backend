@@ -12,7 +12,7 @@ import { GlobalExceptionFilter } from './common/filters';
 import { ValidationPipe } from './common/pipes';
 import { RolesGuard, JwtAuthGuard } from './core/guards';
 
-import { AuthModule } from './modules/auth/auth.module';
+// import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -25,12 +25,12 @@ import { AuthModule } from './modules/auth/auth.module';
     }),
 
     // Core modules
-    DatabaseModule,
-    I18nModule,
     LoggerModule,
+    I18nModule,
+    DatabaseModule,
 
     // Feature modules
-    AuthModule,
+    // AuthModule,
   ],
   providers: [
     {

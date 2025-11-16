@@ -11,66 +11,59 @@ import { ROLES_KEY } from '../../legacy/core/decorators/roles.decorator';
 import { RoleTypes } from '../../legacy/core/enums/RoleTypes';
 import { JwtService } from '@nestjs/jwt';
 import {
+  NOT_AUTHORITY_ERROR,
   NOT_AUTHORITY_ROLES_ERROR,
   NOT_VALID_TOKEN_ERROR,
   TOKEN_NOT_FOUND_ERROR,
 } from '../../legacy/core/constants/auth.constants';
 import { templateParts } from '../../legacy/core/constants/template-parts.constants';
+import { AuthenticatedRequest } from '../../types/request.types';
 
 interface NestJSRequestHeaders {
   [key: string]: string | string[] | undefined;
   authorization?: string | string[];
 }
 
+// TODO: Получаем тип пользователя из вашей JWT стратегии
+// type AuthUser = ReturnType<typeof YourJwtStrategy.prototype.validate>;
+
 /**
  * Guard для проверки ролей
  */
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(
-    private readonly reflector: Reflector,
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly reflector: Reflector) {}
 
   /**
    * Метод для проверки ролей (стандартный метод)
    * @param context
    */
-  async canActivate(context: ExecutionContext): Promise<boolean> {
+  canActivate(context: ExecutionContext): boolean {
     /** Получение ролей из декоратора */
     const requiredRoles = this.reflector.getAllAndOverride<RoleTypes[]>(ROLES_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
+    /** Если роли не требуются - пропускаем */
     if (!requiredRoles) {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest<Request>();
-    /** Получение токена из headers */
-    const token = this.extractTokenFromHeader(request);
-    if (!token) {
-      throw new UnauthorizedException(TOKEN_NOT_FOUND_ERROR);
-    }
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const user = request.user; // Уже проверен через JwtAuthGuard
 
-    /** Проверка токена */
-    let payload: { roles: RoleTypes[] };
-    try {
-      payload = await this.jwtService.verifyAsync(token);
-    } catch {
-      throw new UnauthorizedException(NOT_VALID_TOKEN_ERROR);
+    if (!user?.roles) {
+      throw new ForbiddenException(NOT_AUTHORITY_ERROR);
     }
 
     /** Проверка ролей */
-    const hasAccess = requiredRoles.some((role) => payload.roles?.includes(role));
+    const hasAccess = requiredRoles.some((role) => user.roles.includes(role));
     if (!hasAccess) {
       throw new ForbiddenException(
         NOT_AUTHORITY_ROLES_ERROR.replace(templateParts.id, requiredRoles.join(', ')),
       );
     }
 
-    /** Добавление payload в request */
-    request['user'] = payload;
     return true;
   }
 

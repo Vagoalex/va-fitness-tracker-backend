@@ -6,7 +6,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { User, UserDocument } from '../../user/schemas/user.schema';
-import { CurrentUser } from '../../../common/decorators/current-user.decorator';
+import { CurrentUser } from '../../../common/decorators';
 import { AllConfig } from '../../../types/config.types';
 import { AUTH_CONSTANTS } from '../../../common/constants';
 

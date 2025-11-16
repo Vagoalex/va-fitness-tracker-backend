@@ -5,7 +5,7 @@ import { I18n, I18nContext } from 'nestjs-i18n';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { Public } from '../../common/decorators/public.decorators';
+import { Public } from '../../common/decorators';
 
 @ApiTags('Authentication')
 @Controller('auth')

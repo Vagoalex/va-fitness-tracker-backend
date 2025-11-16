@@ -1,10 +1,12 @@
 import { AuthGuard } from '@nestjs/passport';
 import { JwtTypeName } from '../../legacy/core/constants/auth.constants';
-import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../../legacy/core/decorators/public.decorator';
-import { AuthUserModel } from '../../legacy/modules/shared/auth/models/auth-user.model';
 
+/**
+ * Guard для авторизации
+ */
 @Injectable()
 export class JwtAuthGuard extends AuthGuard(JwtTypeName) {
   constructor(private reflector: Reflector) {
@@ -23,15 +25,15 @@ export class JwtAuthGuard extends AuthGuard(JwtTypeName) {
 
     return super.canActivate(context);
   }
-
-  handleRequest(
-    err: Error | null,
-    user: AuthUserModel | false | null,
-    info: Error | { message?: string; name?: string } | null,
-  ) {
-    if (err || !user) {
-      throw err || new UnauthorizedException('Invalid token');
-    }
-    return user;
-  }
+  //
+  // handleRequest(
+  //   err: Error | null,
+  //   user: AuthUserModel | false | null,
+  //   info: Error | { message?: string; name?: string } | null,
+  // ) {
+  //   if (err || !user) {
+  //     throw err || new UnauthorizedException('Invalid token');
+  //   }
+  //   return user;
+  // }
 }

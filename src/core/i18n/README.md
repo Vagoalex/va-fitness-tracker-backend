@@ -4,146 +4,168 @@
 
 ```
 i18n/
-├── en/                    # Английские переводы
-│   ├── auth.json
-│   ├── common.json
-│   └── validation.json
-├── ru/                    # Русские переводы
-│   ├── auth.json
-│   ├── common.json
-│   └── validation.json
-├── types/
-│   └── translations.types.ts  # TypeScript типы для автодополнения
-├── constants/
-│   └── translation-keys.constants.ts  # Константы ключей
-├── i18n.module.ts         # Модуль (глобальный)
-├── i18n.service.ts        # Типизированный сервис
-└── index.ts               # Barrel export
+├── locales/ # Файлы переводов
+│ ├── en/ # Английские переводы
+│ │ ├── auth.json
+│ │ ├── common.json
+│ │ └── validation.json
+│ └── ru/ # Русские переводы
+│ ├── auth.json
+│ ├── common.json
+│ └── validation.json
+├── generated/ # Автогенерируемые типы (не редактировать)
+│ └── i18n.generated.ts
+├── constants.ts # Конфигурация и константы
+├── i18n.module.ts # Глобальный модуль
+├── i18n.service.ts # Типизированный сервис
+└── index.ts # Barrel export
 ```
+
+## Особенности
+
+- ✅ **Полная типизация** - автодополнение и проверка ключей
+- ✅ **Автогенерация типов** - типы всегда синхронизированы с JSON файлами
+- ✅ **Вложенные ключи** - поддержка `common.errors.not_found`
+- ✅ **Быстрые методы** - удобные методы для каждого namespace
+- ✅ **Глобальная доступность** - модуль регистрируется глобально
 
 ## Использование
 
 ### Базовое Использование с Автодополнением
 
 ```typescript
-import { TypedI18nService } from './core/i18n';
+import { I18nService } from './core/i18n';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly i18nService: TypedI18nService) {}
-
-  async register() {
-    // ✅ Автодополнение работает!
-    // При вводе 'auth.success.' IDE покажет: registered, logged_in
-    const message = await this.i18nService.translateAsync('auth.success.registered');
-    
-    return { message };
-  }
+	constructor(private readonly i18n: I18nService) {}
+	
+	async register(userName: string) {
+		// ✅ Полное автодополнение для всех неймспейсов и ключей
+		const welcome = this.i18n.auth('welcome', { args: { name: userName } });
+		const success = this.i18n.common('success');
+		const requiredError = this.i18n.validation('required');
+		
+		return { welcome, success, requiredError };
+	}
 }
 ```
 
-### Использование с Константами
+### Использование с Вложенными Ключами
+
 
 ```typescript
-import { TypedI18nService, AUTH_TRANSLATION_KEYS } from './core/i18n';
-
 @Injectable()
-export class AuthService {
-  constructor(private readonly i18nService: TypedI18nService) {}
-
-  async login() {
-    // ✅ Использование констант для типобезопасности
-    const message = await this.i18nService.translateAsync(
-      AUTH_TRANSLATION_KEYS.errors.invalid_credentials
-    );
-  }
+export class ErrorService {
+	constructor(private readonly i18n: I18nService) {}
+	
+	handleErrors() {
+		// ✅ Автодополнение работает для любых уровней вложенности
+		const notFound = this.i18n.common('errors.not_found');
+		const validationError = this.i18n.common('errors.validation.required');
+		const authError = this.i18n.auth('errors.invalid_credentials');
+		
+		return { notFound, validationError, authError };
+	}
 }
 ```
 
-### Использование с Параметрами
+### Использование с Параметрами и Языком
 
 ```typescript
 // validation.json
 {
-  "min_length": "Must be at least {min} characters"
+	"min_length": "Must be at least {{min}} characters"
 }
 
 // Использование
-this.i18nService.translate('validation.min_length', {
-  args: { min: 8 }
+this.i18n.validation('min_length', {
+	args: { min: 8 },
+	lang: 'en' // опционально, по умолчанию определяется автоматически
 });
 ```
 
-## Доступные Ключи
+[//]: # (// TODO: Сделать все и поддерживать)
+## Доступные Методы
 
 ### Auth (`auth.*`)
-- `auth.errors.invalid_credentials`
-- `auth.errors.user_exists`
-- `auth.errors.unauthorized`
-- `auth.success.registered`
-- `auth.success.logged_in`
+```typescript
+this.i18n.auth('login');
+this.i18n.auth('welcome', { args: { name: 'John' } });
+this.i18n.auth('errors.invalid_credentials');
+```
 
 ### Common (`common.*`)
-- `common.errors.not_found`
-- `common.errors.internal_error`
-- `common.errors.validation_failed`
-- `common.success.created`
-- `common.success.updated`
-- `common.success.deleted`
+```typescript
+this.i18n.common('success');
+this.i18n.common('errors.not_found');
+this.i18n.common('errors.validation.required');
+this.i18n.common('messages.welcome');
+```
 
 ### Validation (`validation.*`)
-- `validation.is_email`
-- `validation.is_not_empty`
-- `validation.min_length`
-- `validation.max_length`
-- `validation.is_string`
-- `validation.is_number`
-
-## Миграция
-
-### Замена I18nService на TypedI18nService
-
 ```typescript
-// Было
-import { I18nService } from 'nestjs-i18n';
-constructor(private readonly i18nService: I18nService) {}
-
-// Стало
-import { TypedI18nService } from './core/i18n';
-constructor(private readonly i18nService: TypedI18nService) {}
+this.i18n.validation('required');
+this.i18n.validation('invalid_email');
+this.i18n.validation('min_length', { args: { min: 6 } });
 ```
 
-### Обновление Вызовов
-
+## Утилитарные Методы
 ```typescript
-// Оба варианта работают
-await this.i18nService.translateAsync('auth.errors.user_exists');
-this.i18nService.translate('auth.errors.user_exists');
+// Получить текущий язык
+const currentLang = this.i18n.getCurrentLanguage(); // 'en' | 'ru'
+
+// Проверить поддержку языка
+if (this.i18n.isLanguageSupported('fr')) {
+	// ...
+}
+
+// Получить все поддерживаемые языки
+const languages = this.i18n.getSupportedLanguages(); // ['en', 'ru']
 ```
+
+## Генерация Типов
+
+Типы генерируются автоматически при запуске в development режиме или через команду:
+
+```
+npm run i18n:generate
+```
+
+Файл типов создается в src/core/i18n/generated/i18n.generated.ts и автоматически обновляется при изменении JSON файлов.
+Генерация запускается автоматически при сборке проекта из файла `scripts/generate-i18n.js`
 
 ## Добавление Новых Переводов
 
-1. Добавить ключ в JSON файлы всех языков
-2. Обновить типы в `translations.types.ts`
-3. (Опционально) Добавить константу в `translation-keys.constants.ts`
-
-Пример:
-```json
-// en/auth.json
+1. Добавьте ключ в JSON файлы всех языков:
+```typescript
+// en/common.json
 {
-  "errors": {
-    "new_error": "New error message"
+  "new_feature": {
+    "title": "New Feature",
+    "description": "This is a new feature"
+  }
+}
+
+// ru/common.json  
+{
+  "new_feature": {
+    "title": "Новая Функция",
+    "description": "Это новая функция"
   }
 }
 ```
 
+2. Типы сгенерируются автоматически в пути `src/core/i18n/generated/i18n.generated.ts` - можно сразу использовать:
 ```typescript
-// translations.types.ts
-type AuthTranslations = {
-  errors: {
-    // ... существующие
-    new_error: string; // добавить
-  };
-};
+this.i18n.common('new_feature.title');
+this.i18n.common('new_feature.description');
 ```
 
+## Конфигурация
+
+Модуль автоматически определяет язык через:
+- Query параметры: ?lang=en или ?l=ru
+- HTTP заголовки: x-custom-lang
+- Cookies
+- Accept-Language header

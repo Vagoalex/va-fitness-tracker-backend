@@ -1,0 +1,23 @@
+{
+  "messages": {
+    "success": "Успех",
+    "error": "Ошибка",
+    "loading": "Загрузка...",
+    "save": "Сохранить",
+    "cancel": "Отмена"
+  },
+  "errors": {
+    "not_found": "Ресурс не найден",
+    "internal_error": "Внутренняя ошибка сервера",
+    "validation_failed": "Ошибка валидации данных",
+    "bad_request": "Неверный запрос",
+    "unauthorized": "Неавторизован",
+    "forbidden": "Запрещено",
+    "conflict": "Конфликт"
+  },
+  "success": {
+    "created": "Успешно создано",
+    "updated": "Успешно обновлено",
+    "deleted": "Успешно удалено"
+  }
+}

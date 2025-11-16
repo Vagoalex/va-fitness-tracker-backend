@@ -3,6 +3,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
 import { AllConfig, MongoConfig } from '../../types/config.types';
 
+/**
+ * Database module
+ */
 @Module({
   imports: [
     MongooseModule.forRootAsync({

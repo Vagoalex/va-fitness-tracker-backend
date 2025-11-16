@@ -8,19 +8,21 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "i18n:generate": "node scripts/generate-i18n.js",
     "start": "nest start",
+    "prestart:dev": "npm run i18n:generate",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-  	"lint:check": "eslint \"{src,apps,libs,test}/**/*.ts\"",
-  	"test": "jest",
+    "lint:check": "eslint \"{src,apps,libs,test}/**/*.ts\"",
+    "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-  	"prebuild": "rimraf dist",
-	"postbuild": "echo 'Build completed'"
+    "prebuild": "npm run i18n:generate && rimraf dist",
+    "postbuild": "echo 'Build completed'"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

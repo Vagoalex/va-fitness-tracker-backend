@@ -1,84 +1,97 @@
-import { Injectable } from '@nestjs/common';
-import { I18nService as NestI18nService, I18nContext } from 'nestjs-i18n';
-import { TranslationKey } from './types';
-import { AVAILABLE_LANGUAGES } from './constants';
+import { Inject, Injectable } from '@nestjs/common';
+import { I18nContext, I18nService as NestI18nService } from 'nestjs-i18n';
+import { I18nTranslations } from './generated/i18n.generated';
+import { I18N_CONFIG, AppLanguage } from './constants';
 
-/**
- * Типизированный сервис для работы с переводами
- * Обеспечивает автодополнение и типобезопасность для ключей переводов
- */
+// Вспомогательные типы для глубоких ключей
+type DeepKeys<T> = T extends object
+  ? {
+      [K in keyof T]: K extends string
+        ? T[K] extends object
+          ? `${K}.${DeepKeys<T[K]>}`
+          : `${K}`
+        : never;
+    }[keyof T]
+  : never;
+
+type NestedTranslationKeys = {
+  [K in keyof I18nTranslations]: DeepKeys<I18nTranslations[K]>;
+};
+
 @Injectable()
-export class TypedI18nService {
-  constructor(private readonly i18nService: NestI18nService) {}
+export class I18nService {
+  constructor(
+    @Inject(NestI18nService)
+    private readonly nestI18nService: NestI18nService,
+  ) {}
 
   /**
-   * Типизированный метод для получения перевода
-   * @param key - Ключ перевода с автодополнением
-   * @param options - Опции для перевода (язык, параметры и т.д.)
-   * @returns Переведенная строка
+   * Универсальный типизированный метод для переводов
    */
-  translate<T extends TranslationKey>(
-    key: T,
+  t<K extends keyof I18nTranslations>(
+    namespace: K,
+    key: NestedTranslationKeys[K],
     options?: {
-      lang?: string;
-      args?: Record<string, string | number>;
+      lang?: AppLanguage;
+      args?: Record<string, any>;
+      defaultValue?: string;
     },
   ): string {
-    return this.i18nService.translate(key, {
-      lang: options?.lang,
+    return this.nestI18nService.translate(`${namespace as string}.${key as string}`, {
+      lang: options?.lang || I18nContext.current()?.lang,
       args: options?.args,
+      defaultValue: options?.defaultValue,
     });
   }
 
   /**
-   * Асинхронный метод для получения перевода
-   * @param key - Ключ перевода с автодополнением
-   * @param options - Опции для перевода
-   * @returns Promise с переведенной строкой
+   * Быстрые методы для namespace auth с поддержкой вложенных ключей
    */
-  async translateAsync<T extends TranslationKey>(
-    key: T,
-    options?: {
-      lang?: string;
-      args?: Record<string, string | number>;
-    },
-  ): Promise<string> {
-    return this.i18nService.translate(key, {
-      lang: options?.lang,
-      args: options?.args,
-    });
+  auth(
+    key: NestedTranslationKeys['auth'],
+    options?: Omit<Parameters<typeof this.t>[2], 'namespace'>,
+  ): string {
+    return this.t('auth', key, options);
+  }
+
+  /**
+   * Быстрые методы для namespace common с поддержкой вложенных ключей
+   */
+  common(
+    key: NestedTranslationKeys['common'],
+    options?: Omit<Parameters<typeof this.t>[2], 'namespace'>,
+  ): string {
+    return this.t('common', key, options);
+  }
+
+  /**
+   * Быстрые методы для namespace validation с поддержкой вложенных ключей
+   */
+  validation(
+    key: NestedTranslationKeys['validation'],
+    options?: Omit<Parameters<typeof this.t>[2], 'namespace'>,
+  ): string {
+    return this.t('validation', key, options);
   }
 
   /**
    * Получить текущий язык
    */
-  getCurrentLanguage(): string {
-    return I18nContext.current().lang || 'en';
+  getCurrentLanguage(): AppLanguage {
+    return (I18nContext.current()?.lang || I18N_CONFIG.defaultLanguage) as AppLanguage;
   }
 
   /**
-   * Альтернативный метод получения языка с явным контекстом
+   * Проверить поддержку языка
    */
-  getLanguageFromContext(): string {
-    try {
-      const context = I18nContext.current();
-      return context?.lang || 'en';
-    } catch {
-      return 'en';
-    }
+  isLanguageSupported(language: string): language is AppLanguage {
+    return I18N_CONFIG.supportedLanguages.includes(language as AppLanguage);
   }
 
   /**
-   * Доступные языки
+   * Получить все поддерживаемые языки
    */
-  get availableLanguages(): string[] {
-    return [...AVAILABLE_LANGUAGES];
-  }
-
-  /**
-   * Проверка поддержки языка
-   */
-  isLangSupported(lang: string): boolean {
-    return this.availableLanguages.includes(lang);
+  getSupportedLanguages(): AppLanguage[] {
+    return [...I18N_CONFIG.supportedLanguages];
   }
 }

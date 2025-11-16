@@ -1,6 +1,9 @@
 import { registerAs } from '@nestjs/config';
 import { MongoConfig } from '../../types/config.types';
 
+/**
+ * Название регистрируемого конфига (database)
+ */
 export const REGISTER_DB_TOKEN = 'database';
 
 export default registerAs(REGISTER_DB_TOKEN, (): MongoConfig => {

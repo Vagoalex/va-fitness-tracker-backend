@@ -1,0 +1,10 @@
+{
+  "is_email": "Must be a valid email",
+  "is_not_empty": "Should not be empty",
+  "min_length": "Must be at least {min} characters",
+  "max_length": "Must be at most {max} characters",
+  "is_string": "Must be a string",
+  "is_number": "Must be a number",
+  "is_required": "Required field",
+  "validation_failed": "Validation failed"
+}

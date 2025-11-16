@@ -1,6 +1,9 @@
 import { registerAs } from '@nestjs/config';
 import { JwtConfig } from '../../types/config.types';
 
+/**
+ * Название регистрируемого конфига (jwt)
+ */
 export const REGISTER_JWT = 'jwt';
 
 export default registerAs(

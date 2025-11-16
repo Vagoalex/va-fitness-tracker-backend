@@ -2,6 +2,9 @@ import { registerAs } from '@nestjs/config';
 import { EnvironmentTypes } from '../../types/global.types';
 import { AppConfig } from '../../types/config.types';
 
+/**
+ * Название регистрируемого конфига (app)
+ */
 export const REGISTER_APP = 'app';
 
 /**
