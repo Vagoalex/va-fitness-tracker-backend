@@ -1,7 +1,7 @@
 export const AVAILABLE_LANGUAGES = ['en', 'ru'] as const;
 
 export const I18N_CONFIG = {
-  defaultLanguage: 'en',
+  defaultLanguage: 'ru',
   supportedLanguages: [...AVAILABLE_LANGUAGES],
   resolvers: {
     query: ['lang', 'l'],

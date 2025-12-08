@@ -12,6 +12,7 @@
     "validation_failed": "Ошибка валидации данных",
     "bad_request": "Неверный запрос",
     "unauthorized": "Неавторизован",
+    "authentication_failed": "Ошибка аутентификации",
     "forbidden": "Запрещено",
     "conflict": "Конфликт"
   },

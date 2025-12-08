@@ -12,6 +12,7 @@
     "validation_failed": "Data validation error",
     "bad_request": "Bad request",
     "unauthorized": "Unauthorized",
+    "authentication_failed": "Authentication error",
     "forbidden": "Forbidden",
     "conflict": "Conflict"
   },

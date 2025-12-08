@@ -35,6 +35,7 @@ export type I18nTranslations = {
       validation_failed: string;
       bad_request: string;
       unauthorized: string;
+      authentication_failed: string;
       forbidden: string;
       conflict: string;
     };
@@ -45,14 +46,29 @@ export type I18nTranslations = {
     };
   };
   validation: {
-    is_email: string;
+    validation_failed: string;
     is_not_empty: string;
-    min_length: string;
-    max_length: string;
+    is_email: string;
     is_string: string;
     is_number: string;
-    is_required: string;
-    validation_failed: string;
+    is_integer: string;
+    is_boolean: string;
+    is_date: string;
+    is_array: string;
+    is_object: string;
+    min_length: string;
+    max_length: string;
+    length: string;
+    min: string;
+    max: string;
+    is_enum: string;
+    matches: string;
+    is_url: string;
+    is_uuid: string;
+    is_phone_number: string;
+    is_strong_password: string;
+    is_future_date: string;
+    is_adult: string;
   };
 };
 

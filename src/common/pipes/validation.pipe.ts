@@ -1,8 +1,8 @@
 import { PipeTransform, Injectable, ArgumentMetadata, BadRequestException } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
-import { I18nService } from 'nestjs-i18n';
 import { ValidationError } from 'class-validator/types/validation/ValidationError';
+import { I18nService } from '../../core/i18n';
 
 // Тип для ограничений (ключи - это валидаторы, значения - строки)
 type TranslatedConstraint = Record<string, string>;
@@ -30,7 +30,7 @@ export class ValidationPipe implements PipeTransform<unknown> {
     if (errors.length > 0) {
       const translatedErrors = await this.translateErrors(errors);
       throw new BadRequestException({
-        message: this.i18nService.translate('validation.validation_failed'),
+        message: this.i18nService.validation('validation_failed'),
         errors: translatedErrors,
       });
     }
@@ -60,7 +60,7 @@ export class ValidationPipe implements PipeTransform<unknown> {
     );
   }
 
-  private async translateConstraints(constraints: {
+  private translateConstraints(constraints: {
     [type: string]: string;
   }): Promise<{ [type: string]: string }> {
     const translated: { [type: string]: string } = {};
@@ -68,8 +68,7 @@ export class ValidationPipe implements PipeTransform<unknown> {
     for (const [type, message] of Object.entries(constraints)) {
       const translationKey = this.mapConstraintToTranslationKey(type);
       try {
-        translated[type] =
-          (await this.i18nService.translate(`validation.${translationKey}`)) || message;
+        translated[type] = this.i18nService.validation(translationKey) || message;
       } catch {
         translated[type] = message;
       }
