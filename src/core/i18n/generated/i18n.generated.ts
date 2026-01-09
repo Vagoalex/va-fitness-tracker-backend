@@ -12,13 +12,19 @@ export type I18nTranslations = {
       welcome: string;
     };
     errors: {
-      invalid_credentials: string;
-      user_exists: string;
       unauthorized: string;
+      user_exists: string;
+      invalid_credentials: string;
+      invalid_token: string;
+      insufficient_permissions: string;
+      account_inactive: string;
+      refresh_token_expired: string;
     };
     success: {
       registered: string;
       logged_in: string;
+      logged_out: string;
+      token_refreshed: string;
     };
   };
   common: {

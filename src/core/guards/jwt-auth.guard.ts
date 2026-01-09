@@ -1,8 +1,11 @@
 import { AuthGuard } from '@nestjs/passport';
-import { JwtTypeName } from '../../legacy/core/constants/auth.constants';
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { IS_PUBLIC_KEY } from '../../legacy/core/decorators/public.decorator';
+import { IS_PUBLIC_KEY } from '../../common/decorators';
+import { JwtTypeName } from '../../modules/auth/constants';
+import { AuthExceptions } from '../i18n/helpers/i18n-exeptions.helper';
+import { AuthenticatedRequest } from '../../types/request.types';
+import { JwtPayload } from '../../modules/auth/types';
 
 /**
  * Guard для авторизации
@@ -18,22 +21,27 @@ export class JwtAuthGuard extends AuthGuard(JwtTypeName) {
       context.getHandler(),
       context.getClass(),
     ]);
-
     if (isPublic) {
       return true;
     }
 
     return super.canActivate(context);
   }
-  //
-  // handleRequest(
-  //   err: Error | null,
-  //   user: AuthUserModel | false | null,
-  //   info: Error | { message?: string; name?: string } | null,
-  // ) {
-  //   if (err || !user) {
-  //     throw err || new UnauthorizedException('Invalid token');
-  //   }
-  //   return user;
-  // }
+
+  handleRequest<TUser = JwtPayload>(
+    err: any,
+    user: TUser,
+    info: Error | { message?: string; name?: string } | null,
+    context: ExecutionContext,
+  ) {
+    if (err || !user) {
+      throw AuthExceptions.invalidToken();
+    }
+
+    // Добавляем user в request
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    request.user = user;
+
+    return user;
+  }
 }

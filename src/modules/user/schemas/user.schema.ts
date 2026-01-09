@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { RoleTypes } from '../../../types/roles.types';
 
 export type UserDocument = User & Document;
 
@@ -29,8 +30,8 @@ export class User {
   @Prop({ required: true, trim: true })
   lastName: string;
 
-  @Prop({ type: [String], default: ['user'] })
-  roles: string[];
+  @Prop({ type: [RoleTypes], default: [RoleTypes.User] })
+  roles: RoleTypes[];
 
   @Prop({ default: true })
   isActive: boolean;

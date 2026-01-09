@@ -126,12 +126,12 @@ export class AuthExceptions {
     return I18nExceptions.conflict('auth.errors.user_exists');
   }
 
-  // /**
-  //  * Неверный или просроченный токен
-  //  */
-  // static invalidToken(): UnauthorizedException {
-  //   return I18nExceptions.unauthorized('auth.errors.invalid_token');
-  // }
+  /**
+   * Неверный или просроченный токен
+   */
+  static invalidToken(): UnauthorizedException {
+    return I18nExceptions.unauthorized('auth.errors.invalid_token');
+  }
   //
   // /**
   //  * Недостаточно прав
@@ -140,12 +140,12 @@ export class AuthExceptions {
   //   return I18nExceptions.forbidden('auth.errors.insufficient_permissions');
   // }
   //
-  // /**
-  //  * Аккаунт неактивен
-  //  */
-  // static accountInactive(): ForbiddenException {
-  //   return I18nExceptions.forbidden('auth.errors.account_inactive');
-  // }
+  /**
+   * Аккаунт неактивен
+   */
+  static accountInactive(): ForbiddenException {
+    return I18nExceptions.forbidden('auth.errors.account_inactive');
+  }
 }
 
 // export class UserExceptions {

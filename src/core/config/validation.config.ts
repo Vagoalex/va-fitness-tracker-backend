@@ -33,9 +33,6 @@ class EnvironmentTypesVariables {
   DB_PASSWORD?: string;
 
   @IsString()
-  JWT_SECRET: string;
-
-  @IsString()
   JWT_ACCESS_SECRET: string;
 
   @IsString()

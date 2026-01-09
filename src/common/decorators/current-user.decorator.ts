@@ -1,28 +1,10 @@
-import { createParamDecorator } from '@nestjs/common';
-import { Request as ExpressRequest } from 'express';
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { AuthenticatedRequest } from '../../types/request.types';
+import { JwtPayload } from '../../modules/auth/types';
 
-// Тип текущего пользователя
-export interface CurrentUser {
-  userId: string;
-  email: string;
-  roles: string[];
-}
-
-// Расширяем Request локально — только для этого файла
-interface ReceivedRequest extends ExpressRequest {
-  user?: CurrentUser;
-}
-
-export const CurrentUser = createParamDecorator<
-  keyof CurrentUser | undefined,
-  CurrentUser | string | string[] | undefined
->((data, ctx) => {
-  const request = ctx.switchToHttp().getRequest<ReceivedRequest>();
-  const user = request.user;
-
-  if (!user) {
-    return undefined;
-  }
-
-  return data ? user[data] : user;
-});
+export const CurrentUser = createParamDecorator(
+  (data: unknown, ctx: ExecutionContext): JwtPayload => {
+    const request = ctx.switchToHttp().getRequest<AuthenticatedRequest>();
+    return request.user;
+  },
+);

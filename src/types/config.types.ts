@@ -23,9 +23,15 @@ export interface MongoConfig {
  * Конфигурация для jwt и авторизации
  */
 export interface JwtConfig {
+  /** JWT access secret */
   secret: string;
+  /** JWT access expires in */
   expiresIn: string;
+  /** Bcrypt salt rounds */
+  bcryptSaltRounds: number;
+  /** JWT refresh secret */
   refreshSecret: string;
+  /** JWT refresh expires in */
   refreshExpiresIn: string;
 }
 
