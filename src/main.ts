@@ -1,15 +1,47 @@
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
+import { ConfigService } from '@nestjs/config';
+import { AllConfig } from './types/config.types';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  app.setGlobalPrefix('api');
+  const configService = app.get(ConfigService<AllConfig>);
 
-  await app.listen(process.env.PORT || 3000);
+  // Получение и установка глобального префикса API из конфигурации
+  const apiPrefix = configService.get('app.apiPrefix', { infer: true });
+  app.setGlobalPrefix(apiPrefix || 'api');
+
+  // Получение режима разработки из конфигурации
+  const isDevelopment = configService.get('app.isDevelopment', { infer: true });
+  // Получение порта из конфигурации
+  const PORT = configService.get('app.port', { infer: true });
+
+  app.enableCors({
+    origin: isDevelopment ? true : [],
+    credentials: true,
+  });
+
+  // Установка Swagger-документации только в режиме разработки
+  if (isDevelopment) {
+    const config = new DocumentBuilder()
+      .setTitle('Fitness App API')
+      .setDescription('Fitness application REST API documentation')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
+
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup(`${apiPrefix}/docs`, app, document);
+  }
+
+  await app.listen(PORT || 3000);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('Application failed to start:', error);
+  process.exit(1);
+});
