@@ -19,10 +19,12 @@ async function bootstrap() {
   // Получение порта из конфигурации
   const PORT = configService.get('app.port', { infer: true });
 
-  app.enableCors({
-    origin: isDevelopment ? true : [],
-    credentials: true,
-  });
+  if (isDevelopment) {
+    app.enableCors({
+      origin: true,
+      credentials: true,
+    });
+  }
 
   // Установка Swagger-документации только в режиме разработки
   if (isDevelopment) {
@@ -37,7 +39,7 @@ async function bootstrap() {
     SwaggerModule.setup(`${apiPrefix}/docs`, app, document);
   }
 
-  await app.listen(PORT || 3000);
+  await app.listen(PORT);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 

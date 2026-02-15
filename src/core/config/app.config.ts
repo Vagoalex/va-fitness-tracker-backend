@@ -13,8 +13,8 @@ export const REGISTER_APP = 'app';
 export default registerAs(
   REGISTER_APP,
   (): AppConfig => ({
-    nodeEnv: process.env.NODE_ENV || EnvironmentTypes.DEVELOPMENT,
-    port: parseInt(process.env.PORT, 10) || 3000,
+    nodeEnv: process.env.NODE_ENV as AppConfig['nodeEnv'],
+    port: Number(process.env.PORT),
     apiPrefix: process.env.API_PREFIX || 'api',
     isProduction: process.env.NODE_ENV === EnvironmentTypes.PRODUCTION,
     isDevelopment: process.env.NODE_ENV === EnvironmentTypes.DEVELOPMENT,

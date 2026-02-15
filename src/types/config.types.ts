@@ -1,10 +1,11 @@
 import { MongooseModuleOptions } from '@nestjs/mongoose';
+import { Environment } from './global.types';
 
 /**
  * Конфигурация для app
  */
 export interface AppConfig {
-  nodeEnv: string;
+  nodeEnv: Environment;
   port: number;
   apiPrefix: string;
   isProduction: boolean;

@@ -1,15 +1,18 @@
-import { plainToInstance } from 'class-transformer';
-import { IsNumber, IsOptional, IsString, validateSync } from 'class-validator';
-import { Environment } from '../../types/global.types';
+import { plainToInstance, Type } from 'class-transformer';
+import { IsEnum, IsInt, IsOptional, IsString, Max, Min, validateSync } from 'class-validator';
+import { EnvironmentTypes, Environment } from '../../types/global.types';
 
 /**
  * Класс валидации переменных окружения
  */
 class EnvironmentTypesVariables {
-  @IsString()
+  @IsEnum(EnvironmentTypes)
   NODE_ENV: Environment;
 
-  @IsNumber()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(65535)
   PORT: number;
 
   @IsString()
@@ -18,19 +21,26 @@ class EnvironmentTypesVariables {
   @IsString()
   DB_NAME: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   DB_USERNAME?: string;
 
   @IsString()
   DB_HOST: string;
 
-  @IsNumber()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(65535)
   DB_PORT: number;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   DB_PASSWORD?: string;
+
+  @IsOptional()
+  @IsString()
+  DB_CLUSTER?: string;
 
   @IsString()
   JWT_ACCESS_SECRET: string;
@@ -44,10 +54,16 @@ class EnvironmentTypesVariables {
   @IsString()
   JWT_REFRESH_EXPIRES_IN: string;
 
-  @IsNumber()
+  @Type(() => Number)
+  @IsInt()
+  @Min(4)
+  @Max(15)
   BCRYPT_SALT_ROUNDS: number;
 
-  @IsNumber()
+  @Type(() => Number)
+  @IsInt()
+  @Min(6)
+  @Max(128)
   PASSWORD_MIN_LENGTH: number;
 }
 

@@ -11,15 +11,15 @@ import { AllConfig } from '../../types/config.types';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService<AllConfig>): MongooseModuleOptions => {
-        const mongoConfig = configService.get('database', { infer: true });
+        const databaseConfig = configService.get('database', { infer: true });
 
-        if (!mongoConfig?.uri || typeof mongoConfig.uri !== 'string') {
-          throw new Error('MongoDB configuration error: "mongo.uri" is missing or invalid');
+        if (!databaseConfig?.uri || typeof databaseConfig.uri !== 'string') {
+          throw new Error('Database configuration error: "database.uri.uri" is missing or invalid');
         }
 
         return {
-          uri: mongoConfig.uri,
-          ...mongoConfig.options,
+          uri: databaseConfig.uri,
+          ...databaseConfig.options,
         };
       },
       inject: [ConfigService],
