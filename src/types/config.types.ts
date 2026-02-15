@@ -40,7 +40,6 @@ export interface JwtConfig {
  */
 export interface AllConfig {
   app: AppConfig;
-  mongo: MongoConfig;
   jwt: JwtConfig;
-  database: string;
+  database: MongoConfig;
 }

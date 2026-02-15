@@ -6,19 +6,27 @@ import { MongoConfig } from '../../types/config.types';
  */
 export const REGISTER_DB_TOKEN = 'database';
 
-export default registerAs(REGISTER_DB_TOKEN, (): MongoConfig => {
-  const username = process.env.DB_USERNAME || '';
-  const password = process.env.DB_PASSWORD || '';
-  const cluster = process.env.DB_CLUSTER || '';
+function requireEnv(envKey: string): string {
+  const value = process.env[envKey];
+  if (!value) {
+    throw new Error(`Missing required env: ${envKey}`);
+  }
+  return value;
+}
 
-  const uri = `mongodb+srv://${username}:${password}@${cluster}.mongodb.net/`;
+export default registerAs(REGISTER_DB_TOKEN, (): MongoConfig => {
+  const username = requireEnv(process.env.DB_USERNAME);
+  const password = requireEnv(process.env.DB_PASSWORD);
+  const cluster = requireEnv(process.env.DB_CLUSTER);
+
+  const dbName = process.env.DB_NAME || 'VA_Fitness';
+
+  const uri = `mongodb+srv://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${cluster}.mongodb.net/${dbName}?retryWrites=true&w=majority`;
 
   return {
     uri,
     options: {
       autoIndex: process.env.NODE_ENV !== 'production',
-      retryWrites: true,
-      w: 'majority',
       maxPoolSize: 10,
       minPoolSize: 5,
     },
