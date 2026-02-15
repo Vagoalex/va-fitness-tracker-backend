@@ -44,3 +44,15 @@ export interface AllConfig {
   jwt: JwtConfig;
   database: MongoConfig;
 }
+
+export const LOG_LEVELS = ['error', 'warn', 'log', 'debug', 'verbose'] as const;
+export type AppLogLevel = (typeof LOG_LEVELS)[number];
+
+export interface AppConfig {
+  nodeEnv: Environment;
+  port: number;
+  apiPrefix: string;
+  isProduction: boolean;
+  isDevelopment: boolean;
+  logLevel: AppLogLevel;
+}

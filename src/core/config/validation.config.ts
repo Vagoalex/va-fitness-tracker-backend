@@ -1,6 +1,7 @@
 import { plainToInstance, Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, IsString, Max, Min, validateSync } from 'class-validator';
+import { IsEnum, IsIn, IsInt, IsOptional, IsString, Max, Min, validateSync } from 'class-validator';
 import { EnvironmentTypes, Environment } from '../../types/global.types';
+import { AppLogLevel, LOG_LEVELS } from '../../types/config.types';
 
 /**
  * Класс валидации переменных окружения
@@ -65,6 +66,9 @@ class EnvironmentTypesVariables {
   @Min(6)
   @Max(128)
   PASSWORD_MIN_LENGTH: number;
+
+  @IsIn([...LOG_LEVELS])
+  LOG_LEVEL: AppLogLevel;
 }
 
 /**
