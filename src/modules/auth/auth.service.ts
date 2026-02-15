@@ -76,7 +76,7 @@ export class AuthService {
       firstName: registerDto.firstName,
       lastName: registerDto.lastName,
       isActive: true,
-      roles: [RoleTypes.User],
+      roles: [RoleTypes.USER],
     });
 
     // Генерируем токены

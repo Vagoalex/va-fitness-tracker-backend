@@ -30,7 +30,7 @@ export class User {
   @Prop({ required: true, trim: true })
   lastName: string;
 
-  @Prop({ type: [RoleTypes], default: [RoleTypes.User] })
+  @Prop({ type: [RoleTypes], default: [RoleTypes.USER] })
   roles: RoleTypes[];
 
   @Prop({ default: true })

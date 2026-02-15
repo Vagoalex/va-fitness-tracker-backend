@@ -11,7 +11,7 @@ import { EXERCISE_ERRORS } from '../../shared/exercise/constants/exercise-errors
 import { UseValidationPipe } from '../../../core/decorators/use-validation-pipe.decorator';
 
 @AdminController('exercises')
-@RequireRoles(RoleTypes.Admin)
+@RequireRoles(RoleTypes.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class AdminExerciseController extends ExerciseController {
   constructor(private readonly adminExerciseService: AdminExerciseService) {

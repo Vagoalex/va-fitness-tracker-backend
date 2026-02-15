@@ -31,7 +31,7 @@ export class UserService {
     gender: UserGenderTypes.UNKNOWN,
     status: UserStatusTypes.ACTIVE,
     phone: '',
-    roles: [RoleTypes.User],
+    roles: [RoleTypes.USER],
   };
 
   constructor(@InjectModel(UserModel.name) public userModel: Model<UserDocument>) {}
@@ -76,7 +76,7 @@ export class UserService {
       throw new NotFoundException(USER_NOT_FOUND_ERROR);
     }
 
-    if (foundUser.roles.includes(RoleTypes.Admin)) {
+    if (foundUser.roles.includes(RoleTypes.ADMIN)) {
       throw new ForbiddenException(IMPOSSIBLE_DELETE_ADMIN_USER_ERROR);
     }
   }

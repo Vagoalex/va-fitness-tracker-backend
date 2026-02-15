@@ -21,7 +21,7 @@ import { RoleTypes } from '../../../core/enums/RoleTypes';
 import { UseValidationPipe } from '../../../core/decorators/use-validation-pipe.decorator';
 
 @AdminController('categories')
-@RequireRoles(RoleTypes.Admin)
+@RequireRoles(RoleTypes.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class AdminCategoryController extends CategoryController {
   constructor(private readonly adminCategoryService: AdminCategoryService) {

@@ -26,7 +26,7 @@ import { RequireRoles } from '../../../core/decorators/roles.decorator';
 import { RoleTypes } from '../../../core/enums/RoleTypes';
 
 @AdminController('users')
-@RequireRoles(RoleTypes.Admin)
+@RequireRoles(RoleTypes.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class AdminUserController {
   constructor(private readonly adminUserService: AdminUserService) {}

@@ -18,7 +18,7 @@ import { EXERCISE_TYPE_ERRORS } from '../../shared/exercise-type/constants/exerc
 import { UseValidationPipe } from '../../../core/decorators/use-validation-pipe.decorator';
 
 @AdminController('exercise-types')
-@RequireRoles(RoleTypes.Admin)
+@RequireRoles(RoleTypes.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class AdminExerciseTypeController extends ExerciseTypeController {
   constructor(private readonly adminExerciseTypeService: AdminExerciseTypeService) {
