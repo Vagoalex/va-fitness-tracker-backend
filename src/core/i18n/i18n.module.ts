@@ -22,22 +22,23 @@ import { join } from 'path';
   imports: [
     NestI18nModule.forRootAsync({
       imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: (configService: ConfigService<AllConfig>) => {
         return {
           fallbackLanguage: I18N_CONFIG.defaultLanguage,
           loader: I18nJsonLoader,
           loaderOptions: {
             path: join(__dirname, 'locales'),
+            watch: configService.get('app.isDevelopment', { infer: true }) ?? false,
           },
         };
       },
       resolvers: [
         new QueryResolver([...I18N_CONFIG.resolvers.query]),
-        new HeaderResolver([...I18N_CONFIG.resolvers.header]),
+        new HeaderResolver([...I18N_CONFIG.resolvers.header, 'accept-language']),
         new CookieResolver(),
         AcceptLanguageResolver,
       ],
-      inject: [ConfigService],
     }),
   ],
   providers: [I18nService],

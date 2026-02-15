@@ -3,15 +3,7 @@ import { I18nContext, I18nService as NestI18nService } from 'nestjs-i18n';
 import { I18nTranslations, I18nPath } from './generated/i18n.generated';
 import { I18N_CONFIG, AppLanguage } from './constants';
 import { I18nKeys } from './types';
-
-/**
- * Параметры для методов перевода
- */
-interface TranslationOptions {
-  lang?: AppLanguage;
-  args?: Record<string, unknown>;
-  defaultValue?: string;
-}
+import { TranslationOptions } from './types/translation-options.types';
 
 /**
  * Типизированный сервис интернационализации
