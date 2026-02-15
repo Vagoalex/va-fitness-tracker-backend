@@ -152,8 +152,7 @@ export class ValidationPipe implements PipeTransform<unknown> {
         // Получаем ключ перевода для данного констрейнта
         const translationKey = this.getTranslationKey(constraintType, originalMessage);
 
-        // Выполняем перевод через i18n сервис
-        translatedConstraints[constraintType] = this.i18nService.validation(translationKey);
+        translatedConstraints[constraintType] = `validation.${translationKey}`;
       } catch (error) {
         // В случае ошибки перевода используем оригинальное сообщение
         translatedConstraints[constraintType] = originalMessage;

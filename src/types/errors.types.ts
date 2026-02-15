@@ -1,11 +1,11 @@
 import { HttpStatus } from '@nestjs/common';
-import { I18nKeys } from '../core/i18n/types';
+import { I18nPath } from '../core/i18n';
 
 type ErrorCodeType = {
   [K in string]: {
     statusCode: HttpStatus;
     code: K;
-    defaultMessageKey: I18nKeys['common'];
+    defaultMessageKey: I18nPath;
     fallbackMessage: string;
     fallbackRuMessage: string;
   };
@@ -16,7 +16,7 @@ export const ErrorCodeInfo = {
     /** 400 */
     statusCode: HttpStatus.BAD_REQUEST,
     code: 'VALIDATION_ERROR' as const,
-    defaultMessageKey: 'errors.validation_failed',
+    defaultMessageKey: 'common.errors.validation_failed',
     fallbackMessage: 'Validation error',
     fallbackRuMessage: 'Ошибка валидации данных"',
   },
@@ -24,7 +24,7 @@ export const ErrorCodeInfo = {
     /** 401 */
     statusCode: HttpStatus.UNAUTHORIZED,
     code: 'AUTHENTICATION_ERROR' as const,
-    defaultMessageKey: 'errors.authentication_failed',
+    defaultMessageKey: 'common.errors.authentication_failed',
     fallbackMessage: 'Authentication error',
     fallbackRuMessage: 'Ошибка аутентификации',
   },
@@ -32,7 +32,7 @@ export const ErrorCodeInfo = {
     /** 403 */
     statusCode: HttpStatus.FORBIDDEN,
     code: 'AUTHORIZATION_ERROR' as const,
-    defaultMessageKey: 'errors.bad_request',
+    defaultMessageKey: 'common.errors.bad_request',
     fallbackMessage: 'Authorization error',
     fallbackRuMessage: 'Authorization error',
   },
@@ -40,7 +40,7 @@ export const ErrorCodeInfo = {
     /** 404 */
     statusCode: HttpStatus.NOT_FOUND,
     code: 'NOT_FOUND_ERROR' as const,
-    defaultMessageKey: 'errors.bad_request',
+    defaultMessageKey: 'common.errors.bad_request',
     fallbackMessage: 'Not found',
     fallbackRuMessage: 'Not found',
   },
@@ -48,7 +48,7 @@ export const ErrorCodeInfo = {
     /** 409 */
     statusCode: HttpStatus.CONFLICT,
     code: 'CONFLICT_ERROR' as const,
-    defaultMessageKey: 'errors.bad_request',
+    defaultMessageKey: 'common.errors.bad_request',
     fallbackMessage: 'Conflict error',
     fallbackRuMessage: 'Conflict error',
   },
@@ -56,7 +56,7 @@ export const ErrorCodeInfo = {
     /** 500 */
     statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
     code: 'INTERNAL_ERROR' as const,
-    defaultMessageKey: 'errors.bad_request',
+    defaultMessageKey: 'common.errors.bad_request',
     fallbackMessage: 'Internal server error',
     fallbackRuMessage: 'Internal server error',
   },

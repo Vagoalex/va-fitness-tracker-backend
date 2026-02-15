@@ -7,6 +7,12 @@ import { ErrorCode } from '../../types/errors.types';
  * Содержит утилитарные методы для обработки и перевода ключей ошибок
  */
 export class ExceptionTranslationService {
+  /** Паттерн для проверки формата ключа: namespace.rest.of.path */
+  private static readonly NAMESPACE_PATTERN = I18N_NAMESPACES.join('|');
+  private static readonly TRANSLATION_KEY_REGEX = new RegExp(
+    `^(${ExceptionTranslationService.NAMESPACE_PATTERN})\\.[a-zA-Z0-9._-]+$`,
+  );
+
   /**
    * Карта соответствия HTTP статусов ключам переводов для общих ошибок
    * Используется когда исключение не содержит специфичного ключа перевода
@@ -35,6 +41,16 @@ export class ExceptionTranslationService {
   } as const;
 
   /**
+   * Проверяет, является ли строка валидным ключом перевода i18n
+   * Проверяет формат: `namespace.path.to.key`
+   * @param message - Строка для проверки
+   * @returns true если строка является валидным ключом перевода
+   */
+  static isTranslationKey(message: string): message is I18nPath {
+    return this.TRANSLATION_KEY_REGEX.test(message);
+  }
+
+  /**
    * Получает ключ перевода на основе HTTP статуса
    * @param status - HTTP статус код
    * @returns Ключ перевода для заданного статуса
@@ -53,48 +69,33 @@ export class ExceptionTranslationService {
   }
 
   /**
-   * Проверяет, является ли строка валидным ключом перевода i18n
-   * Проверяет формат: `namespace.path.to.key`
-   * @param message - Строка для проверки
-   * @returns true если строка является валидным ключом перевода
-   */
-  static isTranslationKey(message: string): message is I18nPath {
-    // Паттерн для проверки формата ключа: namespace.rest.of.path
-    const namespacePattern = I18N_NAMESPACES.join('|');
-    const translationKeyRegex = new RegExp(`^(${namespacePattern})\\.[a-zA-Z0-9._-]+$`);
-
-    return translationKeyRegex.test(message);
-  }
-
-  /**
    * Извлекает ключ перевода из ответа исключения
    */
   static extractI18nPath(
     response: string | { message?: string | string[]; error?: string; statusCode?: number },
     status: number,
   ): I18nPath {
-    // Если ответ - строка и это ключ перевода
     if (typeof response === 'string' && this.isTranslationKey(response)) {
       return response;
     }
 
-    // Если ответ - объект, ищем ключ перевода в message
-    if (response && typeof response === 'object' && 'message' in response) {
+    if (response && typeof response === 'object') {
       const message = response.message;
 
       if (typeof message === 'string' && this.isTranslationKey(message)) {
         return message;
       }
 
-      if (Array.isArray(message) && message.length > 0) {
-        const firstMessage = message[0];
-        if (typeof firstMessage === 'string' && this.isTranslationKey(firstMessage)) {
-          return firstMessage;
+      if (Array.isArray(message)) {
+        const firstValidKey = message.find(
+          (item) => typeof item === 'string' && this.isTranslationKey(item),
+        );
+        if (firstValidKey) {
+          return firstValidKey;
         }
       }
     }
 
-    // Возвращаем ключ по умолчанию для статуса
     return this.getStatusTranslationKey(status);
   }
 

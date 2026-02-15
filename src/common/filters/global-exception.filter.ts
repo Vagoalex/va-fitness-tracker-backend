@@ -147,31 +147,17 @@ export class GlobalExceptionFilter implements ExceptionFilter {
    * Переводит ключ сообщения в текст с использованием i18n
    */
   private translateMessage(i18nPath: string, status: number): string {
-    try {
-      // Проверяем, является ли путь валидным ключом перевода
-      if (!ExceptionTranslationService.isTranslationKey(i18nPath)) {
-        throw new Error(`Invalid translation key: ${i18nPath}`);
-      }
+    if (!ExceptionTranslationService.isTranslationKey(i18nPath)) {
+      const fallbackKey = ExceptionTranslationService.getStatusTranslationKey(status);
 
-      // Пытаемся перевести ключ
-      const translated = ExceptionTranslationService.translate(this.i18n, i18nPath, i18nPath);
-
-      // Если перевод не изменил строку, используем перевод по статусу
-      if (translated === i18nPath) {
-        const statusKey = ExceptionTranslationService.getStatusTranslationKey(status);
-        return ExceptionTranslationService.translate(this.i18n, statusKey, i18nPath);
-      }
-
-      return translated;
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown translation error';
-      this.logger.warn(
-        `Translation failed for key: ${i18nPath}, error: ${errorMessage}`,
-        'GlobalExceptionFilter',
-      );
-
-      return i18nPath;
+      return this.i18n.translatePath(fallbackKey, {
+        defaultValue: i18nPath,
+      });
     }
+
+    return this.i18n.translatePath(i18nPath, {
+      defaultValue: i18nPath,
+    });
   }
 
   /**
