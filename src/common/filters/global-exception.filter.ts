@@ -16,9 +16,11 @@ import { NestHttpExceptionResponse } from './types';
 /**
  * Глобальный фильтр исключений для обработки всех ошибок приложения
  *
- * @description
- * Обеспечивает единый формат ответа, автоматический перевод сообщений
- * и структурированное логирование всех ошибок приложения
+ * Отвечает за:
+ * - единый формат ошибок API
+ * - перевод i18n ключей
+ * - преобразование internal validation ошибок в публичный формат
+ * - централизованное логирование
  */
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -31,160 +33,160 @@ export class GlobalExceptionFilter implements ExceptionFilter {
    * Основной метод обработки исключений, вызываемый NestJS
    */
   catch(exception: unknown, host: ArgumentsHost): void {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
+    const context = host.switchToHttp();
+    const response = context.getResponse<Response>();
+    const request = context.getRequest<Request>();
 
-    const errorResponse = this.buildErrorResponse(exception, request);
+    const apiError = this.resolveExceptionResponse(exception, request);
 
-    this.logError(exception, errorResponse, request);
+    this.logError(exception, apiError, request);
 
-    response.status(errorResponse.statusCode).json(errorResponse);
+    response.status(apiError.statusCode).json(apiError);
   }
 
   /**
-   * Строит структурированный ответ об ошибке на основе исключения
+   * Преобразует исключение в структурированный ApiError
    */
-  private buildErrorResponse(exception: unknown, request: Request): ApiError {
+  private resolveExceptionResponse(exception: unknown, request: Request): ApiError {
     const baseResponse: Pick<ApiError, 'timestamp' | 'path'> = {
       timestamp: new Date().toISOString(),
       path: request.url,
     };
 
+    // Обработка HttpException
     if (exception instanceof HttpException) {
       return this.handleHttpException(exception, baseResponse);
     }
 
+    // Обработка непредвиденных ошибок
     return this.handleUnknownException(exception, baseResponse);
   }
 
   /**
-   * Обрабатывает HTTP исключения (4xx, 5xx статусы)
+   * Обрабатывает стандартные HttpException (4xx / 5xx)
    */
   private handleHttpException(
     exception: HttpException,
     baseResponse: Pick<ApiError, 'timestamp' | 'path'>,
   ): ApiError {
     const status = exception.getStatus();
-    const exceptionResponse = exception.getResponse();
+    const payload = exception.getResponse();
 
-    // Проверяем, является ли это ошибкой валидации в нашем формате
-    if (this.isInternalValidationErrorResponse(exceptionResponse)) {
-      return this.buildValidationError(exceptionResponse, status, baseResponse);
+    // Внутренняя validation ошибка (из ValidationPipe или I18nExceptions)
+    if (this.isInternalValidationError(payload)) {
+      return this.buildValidationError(payload, status, baseResponse);
     }
 
-    const { message, details } = this.extractMessageAndDetails(exceptionResponse);
-
-    const translatedMessage = this.translateIfNeeded(message);
-
-    const errorCode = this.mapStatusToErrorCode(status);
+    const message = this.extractMessage(payload);
+    const translatedMessage = this.translateIfTranslationKey(message);
 
     return {
       ...baseResponse,
       statusCode: status,
-      code: errorCode,
+      code: this.mapStatusToErrorCode(status),
       message: translatedMessage,
-      ...(this.shouldExposeDetails(status) && details ? { details } : {}),
     };
   }
 
   /**
-   * Обрабатывает ошибки валидации в структурированном формате
+   * Обрабатывает internal validation ошибку
+   * (переводит ключи в строки и возвращает публичный формат)
    */
   private buildValidationError(
-    validationResponse: InternalValidationErrorResponse,
+    validation: InternalValidationErrorResponse,
     status: number,
-    baseResponse: Pick<ApiError, 'timestamp' | 'path'>,
+    base: Pick<ApiError, 'timestamp' | 'path'>,
   ): ValidationError {
-    const translatedMainMessage = this.translateIfNeeded(validationResponse.message);
+    const translatedErrors: ValidationErrorDetail[] = validation.details.errors.map((error) => {
+      const translatedConstraints = error.constraints?.map((constraintKey) =>
+        this.i18n.translatePath(constraintKey, {
+          defaultValue: constraintKey,
+        }),
+      );
 
-    const translatedErrors: ValidationErrorDetail[] = validationResponse.details.errors.map(
-      (error) => {
-        const constraints = error.constraints?.map((c) =>
-          this.i18n.translatePath(c, { defaultValue: c }),
-        );
-
-        return {
-          field: error.field,
-          value: error.value,
-          message: this.i18n.translatePath(error.message, {
-            defaultValue: error.message,
-            args: error.args,
-          }),
-          ...(constraints && constraints.length ? { constraints } : {}),
-        };
-      },
-    );
+      return {
+        field: error.field,
+        value: error.value,
+        message: this.i18n.translatePath(error.message, {
+          args: error.args,
+          defaultValue: error.message,
+        }),
+        ...(translatedConstraints && translatedConstraints.length
+          ? { constraints: translatedConstraints }
+          : {}),
+      };
+    });
 
     return {
-      ...baseResponse,
+      ...base,
       statusCode: status,
       code: 'VALIDATION_ERROR',
-      message: translatedMainMessage,
+      message: this.i18n.translatePath(validation.message, {
+        defaultValue: validation.message,
+      }),
       details: { errors: translatedErrors },
     };
   }
 
   /**
-   * Обрабатывает непредвиденные исключения (не HttpException)
+   * Обработка неизвестных ошибок (500)
    */
   private handleUnknownException(
     exception: unknown,
-    baseResponse: Pick<ApiError, 'timestamp' | 'path'>,
+    base: Pick<ApiError, 'timestamp' | 'path'>,
   ): ApiError {
     const status = HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const message = this.i18n.translatePath('common.errors.internal_error', {
-      defaultValue: 'Internal server error',
-    });
-
-    const details =
-      process.env.NODE_ENV !== 'production' ? this.getErrorDetails(exception) : undefined;
-
     return {
-      ...baseResponse,
+      ...base,
       statusCode: status,
       code: 'INTERNAL_ERROR',
-      message,
-      ...(details ? { details } : {}),
+      message: this.i18n.translatePath('common.errors.internal_error'),
+      ...(process.env.NODE_ENV !== 'production'
+        ? { details: this.serializeException(exception) }
+        : {}),
     };
   }
 
   /**
-   * Извлекает сообщение и детали из ответа исключения
-   * @param response
-   * @returns
+   * Извлекает текст сообщения из payload HttpException
    */
-  private extractMessageAndDetails(response: unknown): { message: string; details?: unknown } {
-    if (typeof response === 'string') return { message: response };
-
-    if (!this.isNestHttpExceptionResponse(response)) return { message: 'Unknown error' };
-
-    const message =
-      typeof response.message === 'string'
-        ? response.message
-        : Array.isArray(response.message)
-          ? response.message[0]
-          : 'Unknown error';
-
-    return {
-      message,
-      details: response.details,
-    };
-  }
-
-  private translateIfNeeded(message: string): string {
-    // Переводим только если это реально валидный ключ
-    if (typeof message === 'string' && ExceptionTranslationService.isTranslationKey(message)) {
-      return this.i18n.translatePath(message, { defaultValue: message });
+  private extractMessage(payload: unknown): string {
+    if (typeof payload === 'string') {
+      return payload;
     }
 
-    if (typeof message === 'string') return message;
+    if (this.isNestHttpExceptionResponse(payload)) {
+      const responseMessage = payload.message;
 
-    // message уже I18nPath
-    return this.i18n.translatePath(message, { defaultValue: message });
+      if (typeof responseMessage === 'string') {
+        return responseMessage;
+      }
+
+      if (Array.isArray(responseMessage) && responseMessage.length > 0) {
+        return String(responseMessage[0]);
+      }
+    }
+
+    return 'Unknown error';
   }
 
+  /**
+   * Переводит сообщение, если оно является валидным i18n ключом
+   */
+  private translateIfTranslationKey(message: string): string {
+    if (ExceptionTranslationService.isTranslationKey(message)) {
+      return this.i18n.translatePath(message, {
+        defaultValue: message,
+      });
+    }
+
+    return message;
+  }
+
+  /**
+   * Маппинг HTTP статуса к ErrorCode через ErrorCodeInfo
+   */
   private mapStatusToErrorCode(status: number): ErrorCode {
     const entry = Object.values(ErrorCodeInfo).find(
       (info) => info.statusCode === (status as HttpStatus),
@@ -193,23 +195,34 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     return entry?.code ?? 'INTERNAL_ERROR';
   }
 
-  private shouldExposeDetails(status: number): boolean {
-    if (status >= 500) {
-      return process.env.NODE_ENV !== 'production';
+  /**
+   * Проверяет, является ли payload internal validation ошибкой
+   */
+  private isInternalValidationError(value: unknown): value is InternalValidationErrorResponse {
+    if (typeof value !== 'object' || value === null) {
+      return false;
     }
-    return true;
-  }
 
-  private isNestHttpExceptionResponse(
-    response: unknown,
-  ): response is NestHttpExceptionResponse & { details?: unknown } {
-    return typeof response === 'object' && response !== null && 'message' in response;
+    const candidate = value as InternalValidationErrorResponse;
+
+    return (
+      candidate.code === 'VALIDATION_ERROR' &&
+      typeof candidate.message === 'string' &&
+      Array.isArray(candidate.details?.errors)
+    );
   }
 
   /**
-   * Извлекает детальную информацию об ошибке для отладки
+   * Проверяет структуру стандартного ответа NestJS HttpException
    */
-  private getErrorDetails(exception: unknown): Record<string, unknown> {
+  private isNestHttpExceptionResponse(value: unknown): value is NestHttpExceptionResponse {
+    return typeof value === 'object' && value !== null && 'message' in value;
+  }
+
+  /**
+   * Сериализация неизвестной ошибки для dev режима
+   */
+  private serializeException(exception: unknown): Record<string, unknown> {
     if (exception instanceof Error) {
       return {
         name: exception.name,
@@ -221,63 +234,20 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     return { raw: exception };
   }
 
-  private isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null;
-  }
-
-  private isI18nPath(value: unknown): value is I18nPath {
-    // Важно: мы не можем строго проверить все возможные ключи без рантайм-реестра,
-    // но мы можем проверить формат и namespace через ExceptionTranslationService.
-    return typeof value === 'string' && ExceptionTranslationService.isTranslationKey(value);
-  }
-
-  private isInternalValidationErrorResponse(
-    response: unknown,
-  ): response is InternalValidationErrorResponse {
-    if (!this.isRecord(response)) return false;
-
-    if (response.code !== 'VALIDATION_ERROR') return false;
-    if (!this.isI18nPath(response.message)) return false;
-
-    const details = response.details;
-    if (!this.isRecord(details)) return false;
-
-    const errors = details.errors;
-    if (!Array.isArray(errors)) return false;
-
-    // минимальная проверка элементов массива
-    return errors.every((e) => {
-      if (!this.isRecord(e)) return false;
-      if (typeof e.field !== 'string') return false;
-      // value может быть любым
-      if (!this.isI18nPath(e.message)) return false;
-
-      if ('args' in e && e.args !== undefined && !this.isRecord(e.args)) return false;
-
-      if ('constraints' in e && e.constraints !== undefined) {
-        if (!Array.isArray(e.constraints)) return false;
-        if (!e.constraints.every((c) => this.isI18nPath(c))) return false;
-      }
-
-      return true;
-    });
-  }
-
   /**
-   * Логирует ошибки с разным уровнем серьёзности
+   * Централизованное логирование ошибок
    */
+  private logError(exception: unknown, apiError: ApiError, request: Request): void {
+    const logMessage = `${request.method} ${request.url} → ${apiError.statusCode}`;
 
-  private logError(exception: unknown, errorResponse: ApiError, request: Request): void {
-    const logMessage = `${request.method} ${request.url} → ${errorResponse.statusCode}`;
-
-    if (errorResponse.statusCode >= 500) {
+    if (apiError.statusCode >= 500) {
       this.logger.error(
         logMessage,
         exception instanceof Error ? exception.stack : undefined,
         'GlobalExceptionFilter',
       );
     } else {
-      this.logger.warn(`${logMessage} - ${errorResponse.message}`, 'GlobalExceptionFilter');
+      this.logger.warn(`${logMessage} - ${apiError.message}`, 'GlobalExceptionFilter');
     }
   }
 }
