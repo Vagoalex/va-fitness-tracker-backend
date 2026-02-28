@@ -1,8 +1,11 @@
 import { ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 import { validate, ValidationError as ClassValidatorError } from 'class-validator';
-import { plainToInstance } from 'class-transformer';
-import { I18nService } from '../../../core/i18n';
-import { ValidationErrorDetail, ValidationErrorResponse } from '../../../types/errors.types';
+import { ClassConstructor, plainToInstance } from 'class-transformer';
+import { I18nPath, I18nService } from '../../../core/i18n';
+import {
+  InternalValidationErrorDetail,
+  InternalValidationErrorResponse,
+} from '../../../types/errors.types';
 import { CONSTRAINT_TO_I18N_KEY, CONSTRAINT_PRIORITY, ValidationTranslationKeys } from './types';
 
 /**
@@ -15,6 +18,7 @@ import { CONSTRAINT_TO_I18N_KEY, CONSTRAINT_PRIORITY, ValidationTranslationKeys 
  * 3. Поддержку вложенных объектов и массивов
  *
  * @example
+ * ```typescript
  * // В контроллере
  * @Post()
  * async create(@Body(ValidationPipe) createDto: CreateDto) {}
@@ -41,10 +45,17 @@ export class ValidationPipe implements PipeTransform<unknown> {
     }
 
     // Преобразуем plain object в экземпляр класса для валидации
-    const objectInstance = plainToInstance(metatype, value) as object;
+    const objectInstance = plainToInstance(metatype as ClassConstructor<object>, value, {
+      enableImplicitConversion: true,
+    });
 
     // Выполняем валидацию с дополнительными опциями
-    const validationErrors = await validate(objectInstance);
+    const validationErrors = await validate(objectInstance, {
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      forbidUnknownValues: true,
+      validationError: { target: false, value: true },
+    });
 
     // Если ошибок нет, возвращаем валидированный объект
     if (validationErrors.length === 0) {
@@ -55,12 +66,10 @@ export class ValidationPipe implements PipeTransform<unknown> {
     const structuredErrors = this.processValidationErrors(validationErrors);
 
     // Создаем структурированный ответ об ошибке
-    const errorResponse: ValidationErrorResponse = {
+    const errorResponse: InternalValidationErrorResponse = {
       code: 'VALIDATION_ERROR',
       message: 'validation.validation_failed',
-      details: {
-        errors: structuredErrors,
-      },
+      details: { errors: structuredErrors },
     };
 
     // Бросаем исключение с структурированной ошибкой
@@ -89,8 +98,8 @@ export class ValidationPipe implements PipeTransform<unknown> {
   private processValidationErrors(
     errors: ClassValidatorError[],
     parentPath: string = '',
-  ): ValidationErrorDetail[] {
-    const structuredErrors: ValidationErrorDetail[] = [];
+  ): InternalValidationErrorDetail[] {
+    const structuredErrors: InternalValidationErrorDetail[] = [];
 
     for (const error of errors) {
       // Строим полный путь к полю (с учетом вложенности)
@@ -98,15 +107,11 @@ export class ValidationPipe implements PipeTransform<unknown> {
 
       // Рекурсивно обрабатываем вложенные ошибки (для объектов и массивов)
       if (error.children && error.children.length > 0) {
-        const childErrors = this.processValidationErrors(error.children, fullPath);
-        structuredErrors.push(...childErrors);
-        continue;
+        structuredErrors.push(...this.processValidationErrors(error.children, fullPath));
       }
-
       // Если есть констрейнты, обрабатываем их
       if (error.constraints && Object.keys(error.constraints).length > 0) {
-        const errorDetail = this.createValidationErrorDetail(error, fullPath);
-        structuredErrors.push(errorDetail);
+        structuredErrors.push(this.createInternalValidationErrorDetail(error, fullPath));
       }
     }
 
@@ -120,21 +125,28 @@ export class ValidationPipe implements PipeTransform<unknown> {
    * @param fieldPath - Полный путь к полю
    * @returns Структурированная ошибка валидации
    */
-  private createValidationErrorDetail(
+  private createInternalValidationErrorDetail(
     error: ClassValidatorError,
     fieldPath: string,
-  ): ValidationErrorDetail {
-    // Переводим констрейнты с использованием i18n
-    const translatedConstraints = this.translateConstraints(error.constraints);
+  ): InternalValidationErrorDetail {
+    const constraintEntries = Object.entries(error.constraints ?? {});
+    const mapped = constraintEntries.map(([constraintType, originalMessage]) => {
+      const key = this.getTranslationKey(constraintType, originalMessage);
+      return {
+        constraintType,
+        i18nPath: `validation.${key}` as I18nPath,
+        args: this.buildArgs(constraintType, originalMessage, fieldPath, error.value),
+      };
+    });
 
-    // Выбираем основное сообщение об ошибке на основе приоритета констрейнтов
-    const primaryMessage = this.selectPrimaryMessage(translatedConstraints);
+    const primary = this.selectPrimary(mapped);
 
     return {
       field: fieldPath,
       value: error.value,
-      message: primaryMessage,
-      constraints: Object.values(translatedConstraints),
+      message: primary.i18nPath,
+      args: primary.args,
+      constraints: mapped.map((m) => m.i18nPath),
     };
   }
 
@@ -221,6 +233,22 @@ export class ValidationPipe implements PipeTransform<unknown> {
     return firstConstraint || 'Validation failed';
   }
 
+  private selectPrimary(
+    mapped: Array<{ constraintType: string; i18nPath: I18nPath; args: Record<string, unknown> }>,
+  ) {
+    for (const type of CONSTRAINT_PRIORITY) {
+      const found = mapped.find((m) => m.constraintType === type);
+      if (found) return found;
+    }
+    return (
+      mapped[0] ?? {
+        constraintType: 'unknown',
+        i18nPath: 'validation.validation_failed' as I18nPath,
+        args: {},
+      }
+    );
+  }
+
   /**
    * Строит полный путь к полю с учетом вложенности
    *
@@ -230,5 +258,66 @@ export class ValidationPipe implements PipeTransform<unknown> {
    */
   private buildFieldPath(property: string, parentPath: string): string {
     return parentPath ? `${parentPath}.${property}` : property;
+  }
+
+  private buildArgs(
+    constraintType: string,
+    originalMessage: string,
+    fieldPath: string,
+    value: unknown,
+  ): Record<string, unknown> {
+    // базовые args
+    const args: Record<string, unknown> = {
+      field: fieldPath,
+      value,
+    };
+
+    // Попытка вытащить параметры из сообщения (простая и достаточная для MVP)
+    // Примеры сообщений class-validator часто содержат числа/паттерны.
+    // Если ты хочешь 100% корректно — лучше передавать args из кастомных декораторов через contexts.
+    if (constraintType === 'minLength' || constraintType === 'maxLength') {
+      const n = this.extractFirstNumber(originalMessage);
+      if (n !== null) {
+        args[constraintType === 'minLength' ? 'min' : 'max'] = n;
+      }
+    }
+
+    if (constraintType === 'length') {
+      const nums = this.extractNumbers(originalMessage);
+      if (nums.length >= 2) {
+        args.min = nums[0];
+        args.max = nums[1];
+      }
+    }
+
+    if (constraintType === 'min' || constraintType === 'max') {
+      const n = this.extractFirstNumber(originalMessage);
+      if (n !== null) {
+        args[constraintType] = n;
+      }
+    }
+
+    // matches — попробуем вытащить pattern
+    if (constraintType === 'matches') {
+      const pattern = this.extractPattern(originalMessage);
+      if (pattern) args.pattern = pattern;
+    }
+
+    return args;
+  }
+
+  private extractFirstNumber(text: string): number | null {
+    const m = text.match(/(\d+(\.\d+)?)/);
+    return m ? Number(m[1]) : null;
+  }
+
+  private extractNumbers(text: string): number[] {
+    return Array.from(text.matchAll(/(\d+(\.\d+)?)/g)).map((m) => Number(m[1]));
+  }
+
+  private extractPattern(text: string): string | null {
+    // очень простая эвристика
+    const m = text.match(/\/(.+)\/[gimsuy]*/);
+    return m?.[1] ?? null;
   }
 }

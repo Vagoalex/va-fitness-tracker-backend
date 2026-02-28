@@ -8,7 +8,10 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { I18nPath } from '../generated/i18n.generated';
-import { ValidationErrorDetail, ValidationErrorResponse } from '../../../types/errors.types';
+import {
+  InternalValidationErrorDetail,
+  InternalValidationErrorResponse,
+} from '../../../types/errors.types';
 
 /**
  * Типизированные хелперы для создания исключений с автоматической типизацией ключей переводов
@@ -65,10 +68,10 @@ export class I18nExceptions {
   /**
    * Ошибка валидации с типизированной структурой
    */
-  static validationFailed(errors: ValidationErrorDetail[]): BadRequestException {
-    const validationResponse: ValidationErrorResponse = {
+  static validationFailed(errors: InternalValidationErrorDetail[]): BadRequestException {
+    const validationResponse: InternalValidationErrorResponse = {
       code: 'VALIDATION_ERROR',
-      message: 'validation.validation_failed' as I18nPath,
+      message: 'validation.validation_failed',
       details: { errors },
     };
 
@@ -82,12 +85,14 @@ export class I18nExceptions {
     field: string,
     value: unknown,
     message: I18nPath,
-    constraints?: string[],
+    args?: Record<string, unknown>,
+    constraints?: I18nPath[],
   ): BadRequestException {
-    const errorDetail: ValidationErrorDetail = {
+    const errorDetail: InternalValidationErrorDetail = {
       field,
       value,
       message,
+      args,
       constraints,
     };
 
