@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { JwtPayload } from '../modules/auth/types';
+import { JwtPayload } from '../../legacy-2/auth/types';
 
 /**
  * Расширенный Request с пользователем

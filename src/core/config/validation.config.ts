@@ -1,7 +1,7 @@
 import { plainToInstance, Type } from 'class-transformer';
 import { IsEnum, IsIn, IsInt, IsOptional, IsString, Max, Min, validateSync } from 'class-validator';
-import { EnvironmentTypes, Environment } from '../../types/global.types';
-import { AppLogLevel, LOG_LEVELS } from '../../types/config.types';
+import { EnvironmentTypes, Environment } from '../types/global.types';
+import { AppLogLevel, LOG_LEVELS } from '../types/config.types';
 
 /**
  * Класс валидации переменных окружения

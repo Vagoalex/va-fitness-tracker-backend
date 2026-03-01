@@ -1,5 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
-import { I18nPath } from '../core/i18n';
+import { I18nPath } from '../i18n';
 
 type ErrorCodeType = {
   [K in string]: {

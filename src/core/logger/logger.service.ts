@@ -1,6 +1,6 @@
 import { Injectable, LoggerService, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AllConfig, AppLogLevel, LOG_LEVELS } from '../../types/config.types';
+import { AllConfig, AppLogLevel, LOG_LEVELS } from '../types/config.types';
 
 /**
  * Метаданные для логирования (стек трейс, дополнительные данные)

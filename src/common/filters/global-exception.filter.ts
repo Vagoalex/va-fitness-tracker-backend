@@ -9,7 +9,7 @@ import {
   InternalValidationErrorResponse,
   ValidationError,
   ValidationErrorDetail,
-} from '../../types/errors.types';
+} from '../../core/types/errors.types';
 import { ExceptionI18nService } from './exception-i18n.util';
 import { NestHttpExceptionResponse } from './types';
 

@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../../legacy/core/decorators/roles.decorator';
-import { RoleTypes } from '../../legacy/core/enums/RoleTypes';
+import { RoleTypes } from '../types/roles.types';
 import { JwtService } from '@nestjs/jwt';
 import {
   NOT_AUTHORITY_ERROR,
@@ -17,7 +17,7 @@ import {
   TOKEN_NOT_FOUND_ERROR,
 } from '../../legacy/core/constants/auth.constants';
 import { templateParts } from '../../legacy/core/constants/template-parts.constants';
-import { AuthenticatedRequest } from '../../types/request.types';
+import { AuthenticatedRequest } from '../types/request.types';
 
 interface NestJSRequestHeaders {
   [key: string]: string | string[] | undefined;

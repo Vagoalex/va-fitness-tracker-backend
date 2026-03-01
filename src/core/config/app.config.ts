@@ -1,6 +1,6 @@
 import { registerAs } from '@nestjs/config';
-import { EnvironmentTypes } from '../../types/global.types';
-import { AppConfig, AppLogLevel, LOG_LEVELS } from '../../types/config.types';
+import { EnvironmentTypes } from '../types/global.types';
+import { AppConfig, AppLogLevel, LOG_LEVELS } from '../types/config.types';
 
 /**
  * Название регистрируемого конфига (app)

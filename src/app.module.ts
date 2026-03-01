@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_FILTER, APP_PIPE, APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 
 import { appConfig, databaseConfig, jwtConfig, validate } from './core/config';
 
@@ -10,9 +10,8 @@ import { I18nModule } from './core/i18n';
 
 import { GlobalExceptionFilter } from './common/filters';
 import { ValidationPipe } from './common/pipes';
-import { RolesGuard, JwtAuthGuard } from './core/guards';
 
-import { AuthModule } from './modules/auth/auth.module';
+import { AuthModule } from './legacy-2/auth/auth.module';
 
 @Module({
   imports: [
@@ -41,14 +40,14 @@ import { AuthModule } from './modules/auth/auth.module';
       provide: APP_PIPE,
       useClass: ValidationPipe,
     },
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard, // Глобальная аутентификация
-    },
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard, // Глобальная авторизация
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: JwtAuthGuard, // Глобальная аутентификация
+    // },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: RolesGuard, // Глобальная авторизация
+    // },
   ],
 })
 export class AppModule {}

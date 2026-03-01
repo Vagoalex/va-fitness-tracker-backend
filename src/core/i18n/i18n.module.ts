@@ -8,7 +8,7 @@ import {
   I18nJsonLoader,
 } from 'nestjs-i18n';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AllConfig } from '../../types/config.types';
+import { AllConfig } from '../types/config.types';
 import { I18nService } from './i18n.service';
 import { I18N_CONFIG } from './constants';
 import { join } from 'path';

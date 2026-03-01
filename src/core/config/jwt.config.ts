@@ -1,5 +1,5 @@
 import { registerAs } from '@nestjs/config';
-import { JwtConfig } from '../../types/config.types';
+import { JwtConfig } from '../types/config.types';
 
 /**
  * Название регистрируемого конфига (jwt)

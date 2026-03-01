@@ -5,7 +5,7 @@ import { I18nPath, I18nService } from '../../../core/i18n';
 import {
   InternalValidationErrorDetail,
   InternalValidationErrorResponse,
-} from '../../../types/errors.types';
+} from '../../../core/types/errors.types';
 import { CONSTRAINT_TO_I18N_KEY, CONSTRAINT_PRIORITY, ValidationTranslationKeys } from './types';
 
 /**
