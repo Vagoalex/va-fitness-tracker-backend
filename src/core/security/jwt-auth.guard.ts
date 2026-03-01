@@ -1,10 +1,15 @@
 import { AuthGuard } from '@nestjs/passport';
-import { AUTH_CONSTANTS } from '../constants';
+import { AUTH_CONSTANTS } from '../../common/constants';
 import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorators';
-import { CurrentUser } from '../decorators/current-user.decorator';
+import { SECURITY_CONSTANTS } from './constants/security.constants';
+// import { CurrentUser } from '../decorators/current-user.decorator';
+import { I18nExceptions } from '../i18n';
 
+// TODO: реализовать jwtAuthGuard
+/**
+ * Guard для авторизации
+ */
 @Injectable()
 export class JwtAuthGuard extends AuthGuard(AUTH_CONSTANTS.JwtTypeName) {
   constructor(private reflector: Reflector) {
@@ -12,7 +17,7 @@ export class JwtAuthGuard extends AuthGuard(AUTH_CONSTANTS.JwtTypeName) {
   }
 
   canActivate(context: ExecutionContext) {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+    const isPublic = this.reflector.getAllAndOverride<boolean>(SECURITY_CONSTANTS.IsPublicKey, [
       context.getHandler(),
       context.getClass(),
     ]);
@@ -24,7 +29,8 @@ export class JwtAuthGuard extends AuthGuard(AUTH_CONSTANTS.JwtTypeName) {
     return super.canActivate(context);
   }
 
-  handleRequest<TUser = CurrentUser>(
+  // handleRequest<TUser = CurrentUser>(
+  handleRequest<TUser = unknown>(
     err: Error | null,
     user: TUser | false | null,
     info: Error | { message?: string; name?: string } | null,
@@ -32,9 +38,8 @@ export class JwtAuthGuard extends AuthGuard(AUTH_CONSTANTS.JwtTypeName) {
     status?: any,
   ): TUser {
     if (err || !user) {
-      throw err || new UnauthorizedException('Invalid token');
+      throw err || I18nExceptions.unauthorized('auth.errors.invalid_token');
     }
-    return user as TUser;
+    return user;
   }
 }
-

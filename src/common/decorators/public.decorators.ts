@@ -1,4 +1,4 @@
 import { SetMetadata } from '@nestjs/common';
+import { SECURITY_CONSTANTS } from '../../core/security/constants/security.constants';
 
-export const IS_PUBLIC_KEY = 'isPublic';
-export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
+export const Public = () => SetMetadata(SECURITY_CONSTANTS.IsPublicKey, true);

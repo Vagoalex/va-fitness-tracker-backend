@@ -6,11 +6,11 @@ import { ErrorCode } from '../../types/errors.types';
  * Сервис для работы с переводами исключений в globalExceptionFilter
  * Содержит утилитарные методы для обработки и перевода ключей ошибок
  */
-export class ExceptionTranslationService {
+export class ExceptionI18nService {
   /** Паттерн для проверки формата ключа: namespace.rest.of.path */
   private static readonly NAMESPACE_PATTERN = I18N_NAMESPACES.join('|');
   private static readonly TRANSLATION_KEY_REGEX = new RegExp(
-    `^(${ExceptionTranslationService.NAMESPACE_PATTERN})\\.[a-zA-Z0-9._-]+$`,
+    `^(${ExceptionI18nService.NAMESPACE_PATTERN})\\.[a-zA-Z0-9._-]+$`,
   );
 
   /**

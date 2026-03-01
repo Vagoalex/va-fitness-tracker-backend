@@ -1,6 +1,6 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { I18nPath, I18nService } from '../../core/i18n';
+import { I18nService } from '../../core/i18n';
 import { AppLoggerService } from '../../core/logger/logger.service';
 import {
   ApiError,
@@ -10,7 +10,7 @@ import {
   ValidationError,
   ValidationErrorDetail,
 } from '../../types/errors.types';
-import { ExceptionTranslationService } from './exception-translation.service';
+import { ExceptionI18nService } from './exception-i18n.util';
 import { NestHttpExceptionResponse } from './types';
 
 /**
@@ -175,7 +175,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
    * Переводит сообщение, если оно является валидным i18n ключом
    */
   private translateIfTranslationKey(message: string): string {
-    if (ExceptionTranslationService.isTranslationKey(message)) {
+    if (ExceptionI18nService.isTranslationKey(message)) {
       return this.i18n.translatePath(message, {
         defaultValue: message,
       });
