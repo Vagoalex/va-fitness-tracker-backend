@@ -4,3 +4,4 @@ export * from './constants';
 
 export { type I18nPath, type I18nNamespace, I18N_NAMESPACES } from './generated/i18n.generated';
 export * from './helpers/i18n-exeptions.helper';
+export type { I18nKeys } from './types';

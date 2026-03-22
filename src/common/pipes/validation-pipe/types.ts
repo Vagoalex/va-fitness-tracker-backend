@@ -1,4 +1,4 @@
-import { I18nKeys } from '../../../core/i18n/types';
+import { I18nKeys } from '@/core/i18n';
 
 /**
  * Тип для ключей переводов в неймспейсе validation

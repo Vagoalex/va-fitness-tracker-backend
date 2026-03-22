@@ -1,5 +1,5 @@
 import { registerAs } from '@nestjs/config';
-import { MongoConfig } from '../types/config.types';
+import { MongoConfig } from '@/core/types/config.types';
 
 /**
  * Название регистрируемого конфига (database)

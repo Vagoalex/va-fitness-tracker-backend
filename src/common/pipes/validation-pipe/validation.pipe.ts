@@ -1,11 +1,11 @@
 import { ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 import { validate, ValidationError as ClassValidatorError } from 'class-validator';
 import { ClassConstructor, plainToInstance } from 'class-transformer';
-import { I18nPath, I18nService } from '../../../core/i18n';
+import { I18nPath, I18nService } from '@/core/i18n';
 import {
   InternalValidationErrorDetail,
   InternalValidationErrorResponse,
-} from '../../../core/types/errors.types';
+} from '@/core/types/errors.types';
 import { CONSTRAINT_TO_I18N_KEY, CONSTRAINT_PRIORITY, ValidationTranslationKeys } from './types';
 
 /**

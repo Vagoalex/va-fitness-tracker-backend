@@ -1,6 +1,6 @@
-import { I18N_NAMESPACES, I18nPath, I18nService } from '../../core/i18n';
+import { I18N_NAMESPACES, I18nPath, I18nService } from '@/core/i18n';
 import { HttpStatus } from '@nestjs/common';
-import { ErrorCode } from '../../core/types/errors.types';
+import { ErrorCode } from '@/core/types/errors.types';
 
 /**
  * Сервис для работы с переводами исключений в globalExceptionFilter

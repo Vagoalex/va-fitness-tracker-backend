@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../../legacy/core/decorators/roles.decorator';
-import { RoleTypes } from '../types/roles.types';
+import { RoleTypes } from '../enums/role-type.enum';
 import { JwtService } from '@nestjs/jwt';
 import {
   NOT_AUTHORITY_ERROR,

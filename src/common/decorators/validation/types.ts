@@ -1,4 +1,4 @@
-import { I18nKeys } from '../../../core/i18n/types';
+import { I18nKeys } from '@/core/i18n';
 import { ValidationOptions } from 'class-validator';
 
 /**

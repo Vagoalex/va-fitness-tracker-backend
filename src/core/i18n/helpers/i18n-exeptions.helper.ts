@@ -11,7 +11,7 @@ import { I18nPath } from '../generated/i18n.generated';
 import {
   InternalValidationErrorDetail,
   InternalValidationErrorResponse,
-} from '../../types/errors.types';
+} from '@/core/types/errors.types';
 
 /**
  * Типизированные хелперы для создания исключений с автоматической типизацией ключей переводов

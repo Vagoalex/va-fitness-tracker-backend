@@ -1,7 +1,7 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { I18nService } from '../../core/i18n';
-import { AppLoggerService } from '../../core/logger/logger.service';
+import { I18nService } from '@/core/i18n';
+import { AppLoggerService } from '@/core/logger/logger.service';
 import {
   ApiError,
   ErrorCode,
@@ -9,7 +9,7 @@ import {
   InternalValidationErrorResponse,
   ValidationError,
   ValidationErrorDetail,
-} from '../../core/types/errors.types';
+} from '@/core/types/errors.types';
 import { ExceptionI18nService } from './exception-i18n.util';
 import { NestHttpExceptionResponse } from './types';
 

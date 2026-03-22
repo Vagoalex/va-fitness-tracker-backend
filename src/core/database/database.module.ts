@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
-import { AllConfig } from '../types/config.types';
+import { AllConfig } from '@/core/types/config.types';
 
 /**
  * Database module

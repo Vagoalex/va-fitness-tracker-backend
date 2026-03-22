@@ -2,16 +2,14 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 
-import { appConfig, databaseConfig, jwtConfig, validate } from './core/config';
+import { appConfig, databaseConfig, jwtConfig, validate } from '@/core/config';
 
-import { DatabaseModule } from './core/database/database.module';
-import { LoggerModule } from './core/logger/logger.module';
-import { I18nModule } from './core/i18n';
+import { DatabaseModule } from '@/core/database/database.module';
+import { LoggerModule } from '@/core/logger/logger.module';
+import { I18nModule } from '@/core/i18n';
 
-import { GlobalExceptionFilter } from './common/filters';
-import { ValidationPipe } from './common/pipes';
-
-import { AuthModule } from './legacy-2/auth/auth.module';
+import { GlobalExceptionFilter } from '@/common/filters';
+import { ValidationPipe } from '@/common/pipes';
 
 @Module({
   imports: [
@@ -29,7 +27,7 @@ import { AuthModule } from './legacy-2/auth/auth.module';
     DatabaseModule,
 
     // Feature modules
-    AuthModule,
+    // AuthModule,
   ],
   providers: [
     {
