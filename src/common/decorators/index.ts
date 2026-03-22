@@ -1,2 +1,2 @@
-export * from './public.decorators';
+export * from '../security/decorators/public.decorator';
 export * from './validation';

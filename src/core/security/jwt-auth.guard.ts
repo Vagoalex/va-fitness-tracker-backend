@@ -2,7 +2,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { AUTH_CONSTANTS } from '../../common/constants';
 import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { SECURITY_CONSTANTS } from './constants/security.constants';
+import { SECURITY_CONSTANTS } from '../../common/security/constants/security.constants';
 // import { CurrentUser } from '../decorators/current-user.decorator';
 import { I18nExceptions } from '../i18n';
 

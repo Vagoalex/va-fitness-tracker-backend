@@ -5,6 +5,4 @@ export enum RoleType {
 }
 
 /** Массив ролей */
-export const ROLES_ARRAY = Object.values(RoleType);
-/** Тип значения роли */
-export type RoleTypeT = (typeof RoleType)[keyof typeof RoleType];
+export const ROLE_TYPE_VALUES = Object.values(RoleType) as RoleType[];

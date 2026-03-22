@@ -7,17 +7,16 @@ import {
   Request,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ROLES_KEY } from '../../legacy/core/decorators/roles.decorator';
-import { RoleTypes } from '../enums/role-type.enum';
-import { JwtService } from '@nestjs/jwt';
+import { ROLES_KEY } from '@/legacy/core/decorators/roles.decorator';
+import { RoleType } from '@/core/enums/role-type.enum';
 import {
   NOT_AUTHORITY_ERROR,
   NOT_AUTHORITY_ROLES_ERROR,
   NOT_VALID_TOKEN_ERROR,
   TOKEN_NOT_FOUND_ERROR,
-} from '../../legacy/core/constants/auth.constants';
-import { templateParts } from '../../legacy/core/constants/template-parts.constants';
-import { AuthenticatedRequest } from '../types/request.types';
+} from '@/legacy/core/constants/auth.constants';
+import { templateParts } from '@/legacy/core/constants/template-parts.constants';
+import { AuthenticatedRequest } from '@/common/http/types/request.types';
 
 interface NestJSRequestHeaders {
   [key: string]: string | string[] | undefined;
@@ -40,7 +39,7 @@ export class RolesGuard implements CanActivate {
    */
   canActivate(context: ExecutionContext): boolean {
     /** Получение ролей из декоратора */
-    const requiredRoles = this.reflector.getAllAndOverride<RoleTypes[]>(ROLES_KEY, [
+    const requiredRoles = this.reflector.getAllAndOverride<RoleType[]>(ROLES_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);

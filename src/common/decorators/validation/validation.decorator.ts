@@ -23,7 +23,7 @@ import {
   IsNumberString as OriginalIsNumberString,
   IsJWT as OriginalIsJWT,
 } from 'class-validator';
-import { I18nKeys } from '../../../core/i18n/types';
+import { I18nKeys } from '@/core/i18n/types';
 import {
   TypedIsDateStringOptions,
   TypedIsEmailOptions,
