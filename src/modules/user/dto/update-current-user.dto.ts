@@ -1,11 +1,8 @@
-import { IsOptional, MaxLength, IsEnum, IsString } from '@/common/validation';
+import { IsEnum, IsOptional, IsString, MaxLength } from '@/common/validation';
 
 import { UserGender } from '@/core/enums/user-gender.enum';
 import { USERS_CONSTANTS } from '@/common/constants';
 
-/**
- * DTO для обновления текущего пользователя
- */
 export class UpdateCurrentUserDto {
   /** Имя пользователя */
   @IsOptional()
@@ -22,7 +19,7 @@ export class UpdateCurrentUserDto {
   /** Телефон пользователя */
   @IsOptional()
   @IsString()
-  @MaxLength(15)
+  @MaxLength(USERS_CONSTANTS.USER_PHONE_MAX_LENGTH)
   phone?: string;
 
   /** Пол пользователя */

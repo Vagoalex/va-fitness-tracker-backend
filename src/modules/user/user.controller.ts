@@ -13,7 +13,6 @@ export class UserController {
    * Получение текущего пользователя
    * @param currentUserId - ID текущего пользователя
    */
-  @UseGuards(JwtAuthGuard)
   @Get('me')
   getMe(@CurrentUser('sub') currentUserId: string) {
     return this.userService.findById(currentUserId);
@@ -24,7 +23,6 @@ export class UserController {
    * @param currentUserId - ID текущего пользователя
    * @param updateCurrentUserDto - DTO для обновления текущего пользователя
    */
-  @UseGuards(JwtAuthGuard)
   @Patch('me')
   updateMe(
     @CurrentUser('sub') currentUserId: string,

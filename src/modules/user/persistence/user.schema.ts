@@ -10,7 +10,7 @@ export type UserDocument = HydratedDocument<User>;
 @Schema({
   collection: 'users',
   versionKey: false,
-  timestamps: true, // Добавляет поля createdAt и updatedAt
+  timestamps: true,
 })
 export class User {
   /** Email пользователя */
@@ -28,7 +28,7 @@ export class User {
   @Prop({
     type: String,
     required: true,
-    select: false, // Не возвращать поле passwordHash в результате запроса
+    select: false,
   })
   passwordHash!: string;
 
@@ -78,34 +78,20 @@ export class User {
   @Prop({ type: Date })
   lastLoginAt?: Date;
 
-  /** Дата последнего изменения пароля пользователя */
+  /** Дата последней смены пароля */
   @Prop({ type: Date })
   passwordChangedAt?: Date;
 
-  /** Дата удаления пользователя */
-  @Prop({ type: Date })
-  deletedAt?: Date;
-
-  /** Дата создания пользователя */
   createdAt!: Date;
-
-  /** Дата обновления пользователя */
   updatedAt!: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-/** Индексы для поля email */
-UserSchema.index({ email: 1 }, { unique: true });
-/** Индексы для поля status */
-UserSchema.index({ status: 1 });
-/** Индексы для поля phone */
-UserSchema.index({ phone: 1 }, { sparse: true });
-
 /** Трансформация для поля passwordHash */
 UserSchema.set('toJSON', {
   transform: (_document, returnedObject: Record<string, unknown>) => {
-    delete returnedObject.passwordHash; // Удаляем поле passwordHash из возвращаемого объекта
-    return returnedObject; // Возвращаем объект
+    delete returnedObject.passwordHash;
+    return returnedObject;
   },
 });

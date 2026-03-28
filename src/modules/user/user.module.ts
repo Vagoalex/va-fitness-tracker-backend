@@ -4,7 +4,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UserController } from '@/modules/user/user.controller';
 import { User, UserSchema } from '@/modules/user/persistence/user.schema';
 import { UserService } from '@/modules/user/user.service';
-import { USER_COLLECTION_NAME } from '@/core/constants/user.constants';
 
 @Module({
   imports: [

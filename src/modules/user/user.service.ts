@@ -5,6 +5,13 @@ import { Model } from 'mongoose';
 import { UpdateCurrentUserDto } from '@/modules/user/dto/update-current-user.dto';
 import { User, UserDocument } from '@/modules/user/persistence/user.schema';
 
+type CreateUserPayload = {
+  email: string;
+  passwordHash: string;
+  firstName?: string;
+  lastName?: string;
+};
+
 @Injectable()
 export class UserService {
   constructor(
@@ -29,7 +36,7 @@ export class UserService {
    * Возвращает пользователя по email.
    */
   async findByEmail(email: string): Promise<UserDocument | null> {
-    return this.userModel.findOne({ email: email.trim().toLowerCase() }).exec();
+    return this.userModel.findOne({ email: this.normalizeEmail(email) }).exec();
   }
 
   /**
@@ -37,7 +44,7 @@ export class UserService {
    */
   async findByEmailWithPasswordHash(email: string): Promise<UserDocument | null> {
     return this.userModel
-      .findOne({ email: email.trim().toLowerCase() })
+      .findOne({ email: this.normalizeEmail(email) })
       .select('+passwordHash')
       .exec();
   }
@@ -45,13 +52,10 @@ export class UserService {
   /**
    * Создаёт пользователя с уже подготовленным passwordHash.
    */
-  async createUser(createUserPayload: {
-    email: string;
-    passwordHash: string;
-    firstName?: string;
-    lastName?: string;
-  }): Promise<UserDocument> {
-    const existingUser = await this.findByEmail(createUserPayload.email);
+  async createUser(createUserPayload: CreateUserPayload): Promise<UserDocument> {
+    const normalizedEmail = this.normalizeEmail(createUserPayload.email);
+
+    const existingUser = await this.findByEmail(normalizedEmail);
 
     if (existingUser) {
       throw new BadRequestException('auth.email_already_exists');
@@ -59,7 +63,7 @@ export class UserService {
 
     return this.userModel.create({
       ...createUserPayload,
-      email: createUserPayload.email.trim().toLowerCase(),
+      email: normalizedEmail,
     });
   }
 
@@ -70,7 +74,18 @@ export class UserService {
     userId: string,
     updateCurrentUserDto: UpdateCurrentUserDto,
   ): Promise<UserDocument> {
-    return this.userModel.findByIdAndUpdate(userId, updateCurrentUserDto, { new: true }).exec();
+    const updatedUserDocument = await this.userModel
+      .findByIdAndUpdate(userId, updateCurrentUserDto, {
+        new: true,
+        runValidators: true,
+      })
+      .exec();
+
+    if (!updatedUserDocument) {
+      throw new NotFoundException('user.not_found');
+    }
+
+    return updatedUserDocument;
   }
 
   /**
@@ -101,5 +116,12 @@ export class UserService {
     if (updateResult.matchedCount === 0) {
       throw new NotFoundException('user.not_found');
     }
+  }
+
+  /**
+   * Нормализует email для поиска и сохранения.
+   */
+  private normalizeEmail(email: string): string {
+    return email.trim().toLowerCase();
   }
 }
