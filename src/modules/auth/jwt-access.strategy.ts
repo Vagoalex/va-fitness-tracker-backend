@@ -5,16 +5,27 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { JWT_ACCESS_STRATEGY_NAME } from '@/common/security/constants/security.constants';
 import { UserStatus } from '@/core/enums/user-status.enum';
 import { JwtAccessPayload } from '@/core/types/jwt-payload.types';
-import { authConfig } from '@/modules/auth/auth.config';
+import { AUTH_CONFIG_KEY, authConfig } from '@/core/config/auth.config';
 import { UserService } from '@/modules/user/user.service';
+import { AuthConfig } from '@/core/types/config.types';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class JwtAccessStrategy extends PassportStrategy(Strategy, JWT_ACCESS_STRATEGY_NAME) {
-  constructor(private readonly userService: UserService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly userService: UserService,
+  ) {
+    const authSettings = configService.get<AuthConfig>(AUTH_CONFIG_KEY);
+
+    if (!authSettings) {
+      throw new Error('Auth config is not defined');
+    }
+
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: authConfig.accessTokenSecret,
+      secretOrKey: authSettings.accessTokenSecret,
     });
   }
 

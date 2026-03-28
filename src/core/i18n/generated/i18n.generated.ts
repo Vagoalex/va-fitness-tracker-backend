@@ -19,6 +19,7 @@ export type I18nTranslations = {
       insufficient_permissions: string;
       account_inactive: string;
       refresh_token_expired: string;
+      no_roles: string;
     };
     success: {
       registered: string;

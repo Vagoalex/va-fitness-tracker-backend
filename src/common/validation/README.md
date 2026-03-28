@@ -13,7 +13,7 @@ import {
   IsAdult,
   IsOptional,
   Matches,
-} from '/..some-path/common/decorators/validation-decorator/validation.decorator';
+} from '/..some-path/common/validation';
 
 export class RegisterDto {
   @IsEmail() // Автоматически использует 'is_email' с автодополнением

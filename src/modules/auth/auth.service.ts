@@ -4,27 +4,34 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcryptjs';
 import { Model, Types } from 'mongoose';
 import { randomUUID } from 'node:crypto';
 
+import { AUTH_CONFIG_KEY } from '@/core/config/auth.config';
+import { AuthConfig } from '@/core/types/config.types';
 import { RoleType } from '@/core/enums/role-type.enum';
 import { UserStatus } from '@/core/enums/user-status.enum';
 import { JwtAccessPayload, JwtRefreshPayload } from '@/core/types/jwt-payload.types';
-import { authConfig } from '@/modules/auth/auth.config';
+
 import { AuthResponse, AuthTokens, RefreshSessionMeta } from '@/modules/auth/auth.types';
 import { ChangePasswordDto } from '@/modules/auth/dto/change-password.dto';
 import { LoginDto } from '@/modules/auth/dto/login.dto';
 import { RegisterDto } from '@/modules/auth/dto/register.dto';
-import { RefreshSession, RefreshSessionDocument } from './persistence/refresh-session.schema';
+import {
+  RefreshSession,
+  RefreshSessionDocument,
+} from '@/modules/auth/persistence/refresh-session.schema';
 import { UserDocument } from '@/modules/user/persistence/user.schema';
 import { UserService } from '@/modules/user/user.service';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
     @InjectModel(RefreshSession.name)
@@ -35,7 +42,8 @@ export class AuthService {
    * Регистрирует пользователя и сразу создаёт auth-сессию.
    */
   async register(registerDto: RegisterDto, sessionMeta: RefreshSessionMeta): Promise<AuthResponse> {
-    const passwordHash = await bcrypt.hash(registerDto.password, authConfig.bcryptSaltRounds);
+    const authSettings = this.getAuthConfig();
+    const passwordHash = await bcrypt.hash(registerDto.password, authSettings.bcryptSaltRounds);
 
     const createdUser = await this.userService.createUser({
       email: registerDto.email,
@@ -62,9 +70,7 @@ export class AuthService {
       throw new UnauthorizedException('auth.invalid_credentials');
     }
 
-    if (userDocument.status !== UserStatus.ACTIVE) {
-      throw new ForbiddenException('auth.user_is_not_active');
-    }
+    this.assertUserIsActive(userDocument.status);
 
     const isPasswordValid = await bcrypt.compare(loginDto.password, userDocument.passwordHash);
 
@@ -106,6 +112,11 @@ export class AuthService {
       refreshSessionDocument.refreshTokenHash,
     );
 
+    /**
+     * Несовпадение hash означает, что sessionId найден,
+     * но сам refresh token не соответствует сохранённой сессии.
+     * Это похоже на reuse / компрометацию — отзываем все сессии пользователя.
+     */
     if (!isRefreshTokenValid) {
       await this.revokeAllUserSessions(refreshPayload.sub);
       throw new ForbiddenException('auth.invalid_refresh_token');
@@ -113,9 +124,7 @@ export class AuthService {
 
     const userDocument = await this.userService.findById(refreshPayload.sub);
 
-    if (userDocument.status !== UserStatus.ACTIVE) {
-      throw new ForbiddenException('auth.user_is_not_active');
-    }
+    this.assertUserIsActive(userDocument.status);
 
     const currentPasswordChangedAtTimestamp = userDocument.passwordChangedAt?.getTime();
 
@@ -153,6 +162,8 @@ export class AuthService {
    * Меняет пароль и инвалидирует старые refresh-сессии.
    */
   async changePassword(userId: string, changePasswordDto: ChangePasswordDto): Promise<void> {
+    const authSettings = this.getAuthConfig();
+
     const userDocument = await this.userService.findById(userId);
     const userWithPasswordHash = await this.userService.findByEmailWithPasswordHash(
       userDocument.email,
@@ -171,13 +182,18 @@ export class AuthService {
       throw new UnauthorizedException('auth.invalid_credentials');
     }
 
-    if (changePasswordDto.currentPassword === changePasswordDto.newPassword) {
+    const isNewPasswordEqualToCurrent = await bcrypt.compare(
+      changePasswordDto.newPassword,
+      userWithPasswordHash.passwordHash,
+    );
+
+    if (isNewPasswordEqualToCurrent) {
       throw new BadRequestException('auth.new_password_must_be_different');
     }
 
     const nextPasswordHash = await bcrypt.hash(
       changePasswordDto.newPassword,
-      authConfig.bcryptSaltRounds,
+      authSettings.bcryptSaltRounds,
     );
 
     await this.userService.updatePassword(userId, nextPasswordHash);
@@ -191,6 +207,7 @@ export class AuthService {
     userDocument: UserDocument,
     sessionMeta: RefreshSessionMeta,
   ): Promise<AuthTokens> {
+    const authSettings = this.getAuthConfig();
     const sessionId = randomUUID();
     const passwordChangedAtTimestamp = userDocument.passwordChangedAt?.getTime();
 
@@ -208,22 +225,22 @@ export class AuthService {
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(accessPayload, {
-        secret: authConfig.accessTokenSecret,
-        expiresIn: authConfig.accessTokenExpiresIn,
+        secret: authSettings.accessTokenSecret,
+        expiresIn: authSettings.accessTokenExpiresIn,
       }),
       this.jwtService.signAsync(refreshPayload, {
-        secret: authConfig.refreshTokenSecret,
-        expiresIn: authConfig.refreshTokenExpiresIn,
+        secret: authSettings.refreshTokenSecret,
+        expiresIn: authSettings.refreshTokenExpiresIn,
       }),
     ]);
 
-    const refreshTokenHash = await bcrypt.hash(refreshToken, authConfig.bcryptSaltRounds);
+    const refreshTokenHash = await bcrypt.hash(refreshToken, authSettings.bcryptSaltRounds);
 
     await this.refreshSessionModel.create({
       userId: new Types.ObjectId(userDocument.id),
       sessionId,
       refreshTokenHash,
-      expiresAt: new Date(Date.now() + authConfig.refreshTokenTtlMs),
+      expiresAt: new Date(Date.now() + authSettings.refreshTokenTtlMs),
       ip: sessionMeta.ip,
       userAgent: sessionMeta.userAgent,
     });
@@ -238,9 +255,11 @@ export class AuthService {
    * Проверяет refresh token и возвращает payload.
    */
   private async verifyRefreshToken(refreshToken: string): Promise<JwtRefreshPayload> {
+    const authSettings = this.getAuthConfig();
+
     try {
       return await this.jwtService.verifyAsync<JwtRefreshPayload>(refreshToken, {
-        secret: authConfig.refreshTokenSecret,
+        secret: authSettings.refreshTokenSecret,
       });
     } catch {
       throw new ForbiddenException('auth.invalid_refresh_token');
@@ -256,5 +275,27 @@ export class AuthService {
         userId: new Types.ObjectId(userId),
       })
       .exec();
+  }
+
+  /**
+   * Возвращает типизированную auth-конфигурацию.
+   */
+  private getAuthConfig(): AuthConfig {
+    const authSettings = this.configService.get<AuthConfig>(AUTH_CONFIG_KEY);
+
+    if (!authSettings) {
+      throw new Error('Auth config is not defined');
+    }
+
+    return authSettings;
+  }
+
+  /**
+   * Единая проверка активности пользователя.
+   */
+  private assertUserIsActive(userStatus: UserStatus): void {
+    if (userStatus !== UserStatus.ACTIVE) {
+      throw new ForbiddenException('auth.user_is_not_active');
+    }
   }
 }

@@ -1,10 +1,4 @@
-import {
-  IsEmail,
-  IsOptional,
-  IsPassword,
-  IsString,
-  MaxLength,
-} from '@/common/decorators/validation';
+import { IsEmail, IsOptional, IsPassword, IsString, MaxLength } from '@/common/validation';
 import { USERS_CONSTANTS } from '@/common/constants';
 
 /**

@@ -1,4 +1,4 @@
-import { IsJWT } from '@/common/decorators/validation';
+import { IsJWT } from '@/common/validation';
 
 export class RefreshTokenDto {
   @IsJWT()

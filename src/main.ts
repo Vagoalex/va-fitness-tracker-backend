@@ -4,46 +4,60 @@ import { AppModule } from '@/app.module';
 import { ConfigService } from '@nestjs/config';
 import { AllConfig } from '@/core/types/config.types';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Logger } from '@nestjs/common';
 
-async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+const bootstrap = async (): Promise<void> => {
+  const application = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bufferLogs: true,
+  });
 
-  const configService = app.get(ConfigService<AllConfig>);
+  const logger = new Logger('Bootstrap');
+  const configService = application.get(ConfigService<AllConfig>);
 
   // Получение и установка глобального префикса API из конфигурации
   const apiPrefix = configService.get('app.apiPrefix', { infer: true });
-  app.setGlobalPrefix(apiPrefix || 'api');
-
   // Получение режима разработки из конфигурации
   const isDevelopment = configService.get('app.isDevelopment', { infer: true });
   // Получение порта из конфигурации
-  const PORT = configService.get('app.port', { infer: true });
+  const applicationPort = configService.get('app.port', { infer: true });
+
+  if (!apiPrefix) {
+    throw new Error('App config "apiPrefix" is not defined');
+  }
+
+  if (!applicationPort) {
+    throw new Error('App config "port" is not defined');
+  }
+
+  application.setGlobalPrefix(apiPrefix);
 
   if (isDevelopment) {
-    app.enableCors({
+    application.enableCors({
       origin: true,
       credentials: true,
     });
-  }
 
-  // Установка Swagger-документации только в режиме разработки
-  if (isDevelopment) {
-    const config = new DocumentBuilder()
+    const swaggerConfig = new DocumentBuilder()
       .setTitle('Fitness App API')
       .setDescription('Fitness application REST API documentation')
       .setVersion('1.0')
       .addBearerAuth()
       .build();
 
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup(`${apiPrefix}/docs`, app, document);
+    const swaggerDocument = SwaggerModule.createDocument(application, swaggerConfig);
+
+    SwaggerModule.setup(`${apiPrefix}/docs`, application, swaggerDocument);
   }
 
-  await app.listen(PORT);
-  console.log(`Application is running on: ${await app.getUrl()}`);
-}
+  await application.listen(applicationPort);
+
+  logger.log(`Application is running on: ${await application.getUrl()}`);
+};
 
 bootstrap().catch((error) => {
-  console.error('Application failed to start:', error);
+  const logger = new Logger('Bootstrap');
+
+  logger.error('Application failed to start', error instanceof Error ? error.stack : String(error));
+
   process.exit(1);
 });

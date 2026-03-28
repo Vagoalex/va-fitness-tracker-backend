@@ -9,7 +9,7 @@ export type RefreshSessionDocument = HydratedDocument<RefreshSession>;
   timestamps: true,
 })
 export class RefreshSession {
-  /** ID пользователя */
+  /** Идентификатор пользователя, которому принадлежит сессия */
   @Prop({
     type: Types.ObjectId,
     required: true,
@@ -17,7 +17,7 @@ export class RefreshSession {
   })
   userId!: Types.ObjectId;
 
-  /** ID сессии */
+  /** Уникальный идентификатор refresh-сессии */
   @Prop({
     type: String,
     required: true,
@@ -34,15 +34,15 @@ export class RefreshSession {
   })
   refreshTokenHash!: string;
 
-  /** User-Agent */
+  /** User-Agent клиента */
   @Prop({ type: String })
   userAgent?: string;
 
-  /** IP адрес */
+  /** IP-адрес клиента */
   @Prop({ type: String })
   ip?: string;
 
-  /** Дата истечения срока действия */
+  /** Дата истечения срока действия refresh-сессии */
   @Prop({
     type: Date,
     required: true,
@@ -50,20 +50,14 @@ export class RefreshSession {
   })
   expiresAt!: Date;
 
-  /** Дата истечения срока действия */
-  @Prop({ type: Date })
-  revokedAt?: Date;
-
-  /** Дата создания */
   createdAt!: Date;
   updatedAt!: Date;
 }
 
 export const RefreshSessionSchema = SchemaFactory.createForClass(RefreshSession);
 
-/** Индексы для поля expiresAt */
+/** TTL-индекс для автоматической очистки истёкших refresh-сессий */
 RefreshSessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
-/** Индексы для поля userId */
+
+/** Индекс для выборок сессий пользователя */
 RefreshSessionSchema.index({ userId: 1 });
-/** Индексы для поля userId и sessionId */
-RefreshSessionSchema.index({ userId: 1, sessionId: 1 }, { unique: true });

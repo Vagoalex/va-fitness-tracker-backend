@@ -1,4 +1,4 @@
-import { IsOptional, MaxLength, IsEnum, IsString } from '@/common/decorators/validation';
+import { IsOptional, MaxLength, IsEnum, IsString } from '@/common/validation';
 
 import { UserGender } from '@/core/enums/user-gender.enum';
 import { USERS_CONSTANTS } from '@/common/constants';
