@@ -75,20 +75,21 @@
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
   },
-  "jest": {
-		"moduleFileExtensions": ["js", "json", "ts"],
-		"rootDir": "src",
-		"testRegex": ".*\\.spec\\.ts$",
-		"transform": {
-			"^.+\\.(t|j)s$": "ts-jest"
-		},
-		"moduleNameMapper": {
-			"^@/(.*)$": "<rootDir>/$1"
-		},
-		"collectCoverageFrom": [
-			"**/*.(t|j)s"
-		],
-		"coverageDirectory": "../coverage",
-		"testEnvironment": "node"
-  }
-}
+	  "jest": {
+			"moduleFileExtensions": ["js", "json", "ts"],
+			"rootDir": "src",
+			"testRegex": ".*\\.spec\\.ts$",
+			"testEnvironment": "<rootDir>/../node_modules/jest-EnvironmentTypes-node/build/index.js",
+			"testPathIgnorePatterns": ["/legacy/", "/legacy-2/"],
+			"transform": {
+				"^.+\\.(t|j)s$": "ts-jest"
+			},
+			"moduleNameMapper": {
+				"^@/(.*)$": "<rootDir>/$1"
+			},
+			"collectCoverageFrom": [
+				"**/*.(t|j)s"
+			],
+			"coverageDirectory": "../coverage"
+	  }
+	}

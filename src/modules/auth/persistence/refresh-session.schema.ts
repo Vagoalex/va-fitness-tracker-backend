@@ -13,7 +13,6 @@ export class RefreshSession {
   @Prop({
     type: Types.ObjectId,
     required: true,
-    index: true,
   })
   userId!: Types.ObjectId;
 
@@ -46,7 +45,6 @@ export class RefreshSession {
   @Prop({
     type: Date,
     required: true,
-    index: true,
   })
   expiresAt!: Date;
 

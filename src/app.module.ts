@@ -11,6 +11,8 @@ import { I18nModule } from '@/core/i18n';
 import { GlobalExceptionFilter } from '@/common/filters';
 import { ValidationPipe } from '@/common/pipes';
 import { RolesGuard, JwtAuthGuard } from '@/core/security';
+import { AuthModule } from '@/modules/auth/auth.module';
+import { UserModule } from '@/modules/user/user.module';
 
 @Module({
   imports: [
@@ -28,8 +30,8 @@ import { RolesGuard, JwtAuthGuard } from '@/core/security';
     DatabaseModule,
 
     // Feature modules
-    // AuthModule,
-    // UserModule,
+    AuthModule,
+    UserModule,
   ],
   providers: [
     /**

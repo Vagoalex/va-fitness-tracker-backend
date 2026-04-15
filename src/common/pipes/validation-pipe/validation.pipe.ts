@@ -1,7 +1,7 @@
 import { ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 import { validate, ValidationError as ClassValidatorError } from 'class-validator';
 import { ClassConstructor, plainToInstance } from 'class-transformer';
-import { I18nPath, I18nService } from '@/core/i18n';
+import { I18nPath } from '@/core/i18n';
 import {
   InternalValidationErrorDetail,
   InternalValidationErrorResponse,
@@ -28,7 +28,13 @@ import { CONSTRAINT_TO_I18N_KEY, CONSTRAINT_PRIORITY, ValidationTranslationKeys 
  */
 @Injectable()
 export class ValidationPipe implements PipeTransform<unknown> {
-  constructor(private readonly i18nService: I18nService) {}
+  private readonly sensitiveFieldMarkers = [
+    'password',
+    'token',
+    'authorization',
+    'cookie',
+    'secret',
+  ];
 
   /**
    * Основной метод трансформации и валидации входных данных
@@ -143,40 +149,11 @@ export class ValidationPipe implements PipeTransform<unknown> {
 
     return {
       field: fieldPath,
-      value: error.value,
+      value: this.sanitizeFieldValue(fieldPath, error.value),
       message: primary.i18nPath,
       args: primary.args,
       constraints: mapped.map((m) => m.i18nPath),
     };
-  }
-
-  /**
-   * Переводит констрейнты валидации с использованием i18n сервиса
-   *
-   * @param constraints - Констрейнты от class-validator
-   * @returns Объект с переведенными сообщениями об ошибках
-   */
-  private translateConstraints(constraints: Record<string, string>): Record<string, string> {
-    const translatedConstraints: Record<string, string> = {};
-
-    for (const [constraintType, originalMessage] of Object.entries(constraints)) {
-      try {
-        // Получаем ключ перевода для данного констрейнта
-        const translationKey = this.getTranslationKey(constraintType, originalMessage);
-
-        translatedConstraints[constraintType] = `validation.${translationKey}`;
-      } catch (error) {
-        // В случае ошибки перевода используем оригинальное сообщение
-        translatedConstraints[constraintType] = originalMessage;
-
-        // Логируем ошибку для отладки (в продакшене можно заменить на logger)
-        console.debug(
-          `Translation failed for constraint "${constraintType}": ${error instanceof Error ? error.message : 'Unknown error'}`,
-        );
-      }
-    }
-
-    return translatedConstraints;
   }
 
   /**
@@ -210,27 +187,6 @@ export class ValidationPipe implements PipeTransform<unknown> {
 
     // Если констрейнт не найден в маппинге, используем общий ключ
     return 'validation_failed';
-  }
-
-  /**
-   * Выбирает основное сообщение об ошибке из переведенных констрейнтов
-   * Использует приоритет констрейнтов для определения наиболее важной ошибки
-   *
-   * @param translatedConstraints - Объект с переведенными констрейнтами
-   * @returns Основное сообщение об ошибке
-   */
-  private selectPrimaryMessage(translatedConstraints: Record<string, string>): string {
-    // Ищем констрейнты в порядке приоритета
-    for (const constraintType of CONSTRAINT_PRIORITY) {
-      const message = translatedConstraints[constraintType];
-      if (message) {
-        return message;
-      }
-    }
-
-    // Если не нашли приоритетных констрейнтов, возвращаем первый доступный
-    const firstConstraint = Object.values(translatedConstraints)[0];
-    return firstConstraint || 'Validation failed';
   }
 
   private selectPrimary(
@@ -319,5 +275,15 @@ export class ValidationPipe implements PipeTransform<unknown> {
     // очень простая эвристика
     const m = text.match(/\/(.+)\/[gimsuy]*/);
     return m?.[1] ?? null;
+  }
+
+  private sanitizeFieldValue(fieldPath: string, value: unknown): unknown {
+    const normalizedFieldPath = fieldPath.toLowerCase();
+
+    if (this.sensitiveFieldMarkers.some((marker) => normalizedFieldPath.includes(marker))) {
+      return '[REDACTED]';
+    }
+
+    return value;
   }
 }

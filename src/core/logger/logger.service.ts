@@ -177,8 +177,15 @@ export class AppLoggerService implements LoggerService {
         this.printFormatted(logEntry);
       }
     } catch (loggerError) {
+      const fallbackMessage =
+        message instanceof Error
+          ? message.message
+          : typeof message === 'string'
+            ? message
+            : '[Unserializable log message]';
+
       console.error('Logger error:', loggerError);
-      console.log(`[${level.toUpperCase()}] ${String(message as string)}`);
+      console.log(`[${level.toUpperCase()}] ${fallbackMessage}`);
     }
   }
 
@@ -266,7 +273,8 @@ export class AppLoggerService implements LoggerService {
   private normalizeMessage(message: unknown): string {
     if (message instanceof Error) return message.message;
     if (typeof message === 'string') return message;
-    if (message === null || message === undefined) return String(message);
+    if (message === null) return 'null';
+    if (message === undefined) return 'undefined';
 
     return this.safeStringify(this.redact(message));
   }

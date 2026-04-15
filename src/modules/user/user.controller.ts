@@ -1,7 +1,6 @@
-import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch } from '@nestjs/common';
 
 import { CurrentUser } from '@/common/security/decorators/current-user.decorator';
-import { JwtAuthGuard } from '@/common/security/guards/jwt-auth.guard';
 import { UpdateCurrentUserDto } from '@/modules/user/dto/update-current-user.dto';
 import { UserService } from '@/modules/user/user.service';
 

@@ -16,9 +16,14 @@ export type I18nTranslations = {
       user_exists: string;
       invalid_credentials: string;
       invalid_token: string;
+      invalid_refresh_token: string;
       insufficient_permissions: string;
       account_inactive: string;
       refresh_token_expired: string;
+      refresh_session_revoked: string;
+      refresh_token_expired_by_password_change: string;
+      access_token_expired_by_password_change: string;
+      new_password_must_be_different: string;
       no_roles: string;
     };
     success: {

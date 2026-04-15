@@ -1,19 +1,19 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 import { JWT_ACCESS_STRATEGY_NAME } from '@/common/security/constants/security.constants';
+import { AUTH_CONFIG_KEY } from '@/core/config/auth.config';
 import { UserStatus } from '@/core/enums/user-status.enum';
+import { AllConfig, AuthConfig } from '@/core/types/config.types';
 import { JwtAccessPayload } from '@/core/types/jwt-payload.types';
-import { AUTH_CONFIG_KEY, authConfig } from '@/core/config/auth.config';
 import { UserService } from '@/modules/user/user.service';
-import { AuthConfig } from '@/core/types/config.types';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class JwtAccessStrategy extends PassportStrategy(Strategy, JWT_ACCESS_STRATEGY_NAME) {
   constructor(
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService<AllConfig>,
     private readonly userService: UserService,
   ) {
     const authSettings = configService.get<AuthConfig>(AUTH_CONFIG_KEY);
@@ -47,8 +47,8 @@ export class JwtAccessStrategy extends PassportStrategy(Strategy, JWT_ACCESS_STR
     }
 
     return {
-      sub: userDocument.id,
-      roles: userDocument.roles,
+      sub: userDocument._id.toString(),
+      roles: Array.isArray(userDocument.roles) ? [...userDocument.roles] : [],
       passwordChangedAt: currentPasswordChangedAtTimestamp,
     };
   }

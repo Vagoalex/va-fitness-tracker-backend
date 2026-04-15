@@ -21,7 +21,7 @@ export class ExampleService1 {
     const validationText = this.i18n.common('errors.validation_failed');
 
     // ✅ При вводе 'this.i18n.validation(' IDE покажет автодополнение для validation
-    const requiredText = this.i18n.validation('is_required');
+    const requiredText = this.i18n.validation('is_not_empty');
     const minLengthText = this.i18n.validation('min_length', { args: { min: 6 } });
 
     // ❌ Ошибка компиляции - ключ не существует
@@ -89,7 +89,7 @@ export class ExampleService4 {
     // ✅ Универсальный метод для любых namespace
     const authMessage = this.i18n.t('auth', 'messages.login');
     const commonMessage = this.i18n.t('common', 'errors.not_found');
-    const validationMessage = this.i18n.t('validation', 'is_required', {
+    const validationMessage = this.i18n.t('validation', 'is_not_empty', {
       lang: 'en',
     });
 
@@ -134,7 +134,7 @@ export class ValidationService {
 
   validateEmail(email: string): string | null {
     if (!email) {
-      return this.i18n.validation('is_required');
+      return this.i18n.validation('is_not_empty');
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -147,7 +147,7 @@ export class ValidationService {
 
   validatePassword(password: string): string | null {
     if (!password) {
-      return this.i18n.validation('is_required');
+      return this.i18n.validation('is_not_empty');
     }
 
     if (password.length < 6) {

@@ -26,7 +26,7 @@ export class UserService {
     const userDocument = await this.userModel.findById(userId).exec();
 
     if (!userDocument) {
-      throw new NotFoundException('user.not_found');
+      throw new NotFoundException('common.errors.not_found');
     }
 
     return userDocument;
@@ -58,13 +58,21 @@ export class UserService {
     const existingUser = await this.findByEmail(normalizedEmail);
 
     if (existingUser) {
-      throw new BadRequestException('auth.email_already_exists');
+      throw new BadRequestException('auth.errors.user_exists');
     }
 
-    return this.userModel.create({
-      ...createUserPayload,
-      email: normalizedEmail,
-    });
+    try {
+      return await this.userModel.create({
+        ...createUserPayload,
+        email: normalizedEmail,
+      });
+    } catch (error: unknown) {
+      if (this.isMongoDuplicateKeyError(error)) {
+        throw new BadRequestException('auth.errors.user_exists');
+      }
+
+      throw error;
+    }
   }
 
   /**
@@ -82,7 +90,7 @@ export class UserService {
       .exec();
 
     if (!updatedUserDocument) {
-      throw new NotFoundException('user.not_found');
+      throw new NotFoundException('common.errors.not_found');
     }
 
     return updatedUserDocument;
@@ -114,7 +122,7 @@ export class UserService {
       .exec();
 
     if (updateResult.matchedCount === 0) {
-      throw new NotFoundException('user.not_found');
+      throw new NotFoundException('common.errors.not_found');
     }
   }
 
@@ -123,5 +131,9 @@ export class UserService {
    */
   private normalizeEmail(email: string): string {
     return email.trim().toLowerCase();
+  }
+
+  private isMongoDuplicateKeyError(error: unknown): error is { code: number } {
+    return typeof error === 'object' && error !== null && 'code' in error && error.code === 11000;
   }
 }

@@ -67,7 +67,7 @@ export class AuthService {
     const userDocument = await this.userService.findByEmailWithPasswordHash(loginDto.email);
 
     if (!userDocument?.passwordHash) {
-      throw new UnauthorizedException('auth.invalid_credentials');
+      throw new UnauthorizedException('auth.errors.invalid_credentials');
     }
 
     this.assertUserIsActive(userDocument.status);
@@ -75,10 +75,10 @@ export class AuthService {
     const isPasswordValid = await bcrypt.compare(loginDto.password, userDocument.passwordHash);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('auth.invalid_credentials');
+      throw new UnauthorizedException('auth.errors.invalid_credentials');
     }
 
-    await this.userService.updateLastLoginAt(userDocument.id, new Date());
+    await this.userService.updateLastLoginAt(this.getUserId(userDocument), new Date());
 
     const authTokens = await this.createSessionTokens(userDocument, sessionMeta);
 
@@ -100,11 +100,7 @@ export class AuthService {
       .exec();
 
     if (!refreshSessionDocument?.refreshTokenHash) {
-      throw new ForbiddenException('auth.invalid_refresh_token');
-    }
-
-    if (refreshSessionDocument.revokedAt) {
-      throw new ForbiddenException('auth.refresh_session_revoked');
+      throw new ForbiddenException('auth.errors.invalid_refresh_token');
     }
 
     const isRefreshTokenValid = await bcrypt.compare(
@@ -119,7 +115,7 @@ export class AuthService {
      */
     if (!isRefreshTokenValid) {
       await this.revokeAllUserSessions(refreshPayload.sub);
-      throw new ForbiddenException('auth.invalid_refresh_token');
+      throw new ForbiddenException('auth.errors.invalid_refresh_token');
     }
 
     const userDocument = await this.userService.findById(refreshPayload.sub);
@@ -133,8 +129,8 @@ export class AuthService {
       refreshPayload.passwordChangedAt &&
       refreshPayload.passwordChangedAt < currentPasswordChangedAtTimestamp
     ) {
-      await this.revokeAllUserSessions(userDocument.id);
-      throw new ForbiddenException('auth.refresh_token_expired_by_password_change');
+      await this.revokeAllUserSessions(this.getUserId(userDocument));
+      throw new ForbiddenException('auth.errors.refresh_token_expired_by_password_change');
     }
 
     await this.refreshSessionModel.deleteOne({ _id: refreshSessionDocument._id }).exec();
@@ -170,7 +166,7 @@ export class AuthService {
     );
 
     if (!userWithPasswordHash?.passwordHash) {
-      throw new UnauthorizedException('auth.invalid_credentials');
+      throw new UnauthorizedException('auth.errors.invalid_credentials');
     }
 
     const isCurrentPasswordValid = await bcrypt.compare(
@@ -179,7 +175,7 @@ export class AuthService {
     );
 
     if (!isCurrentPasswordValid) {
-      throw new UnauthorizedException('auth.invalid_credentials');
+      throw new UnauthorizedException('auth.errors.invalid_credentials');
     }
 
     const isNewPasswordEqualToCurrent = await bcrypt.compare(
@@ -188,7 +184,7 @@ export class AuthService {
     );
 
     if (isNewPasswordEqualToCurrent) {
-      throw new BadRequestException('auth.new_password_must_be_different');
+      throw new BadRequestException('auth.errors.new_password_must_be_different');
     }
 
     const nextPasswordHash = await bcrypt.hash(
@@ -210,15 +206,17 @@ export class AuthService {
     const authSettings = this.getAuthConfig();
     const sessionId = randomUUID();
     const passwordChangedAtTimestamp = userDocument.passwordChangedAt?.getTime();
+    const userId = this.getUserId(userDocument);
+    const userRoles = this.getUserRoles(userDocument);
 
     const accessPayload: JwtAccessPayload = {
-      sub: userDocument.id,
-      roles: userDocument.roles ?? [RoleType.USER],
+      sub: userId,
+      roles: userRoles,
       passwordChangedAt: passwordChangedAtTimestamp,
     };
 
     const refreshPayload: JwtRefreshPayload = {
-      sub: userDocument.id,
+      sub: userId,
       sid: sessionId,
       passwordChangedAt: passwordChangedAtTimestamp,
     };
@@ -237,7 +235,7 @@ export class AuthService {
     const refreshTokenHash = await bcrypt.hash(refreshToken, authSettings.bcryptSaltRounds);
 
     await this.refreshSessionModel.create({
-      userId: new Types.ObjectId(userDocument.id),
+      userId: new Types.ObjectId(userId),
       sessionId,
       refreshTokenHash,
       expiresAt: new Date(Date.now() + authSettings.refreshTokenTtlMs),
@@ -262,7 +260,7 @@ export class AuthService {
         secret: authSettings.refreshTokenSecret,
       });
     } catch {
-      throw new ForbiddenException('auth.invalid_refresh_token');
+      throw new ForbiddenException('auth.errors.invalid_refresh_token');
     }
   }
 
@@ -295,7 +293,19 @@ export class AuthService {
    */
   private assertUserIsActive(userStatus: UserStatus): void {
     if (userStatus !== UserStatus.ACTIVE) {
-      throw new ForbiddenException('auth.user_is_not_active');
+      throw new ForbiddenException('auth.errors.account_inactive');
     }
+  }
+
+  private getUserId(userDocument: UserDocument): string {
+    const userId = (userDocument as UserDocument & { _id: Types.ObjectId })._id;
+
+    return userId.toString();
+  }
+
+  private getUserRoles(userDocument: UserDocument): RoleType[] {
+    return Array.isArray(userDocument.roles) && userDocument.roles.length > 0
+      ? [...userDocument.roles]
+      : [RoleType.USER];
   }
 }

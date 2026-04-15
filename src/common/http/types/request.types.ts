@@ -8,3 +8,8 @@ import { JwtAccessPayload } from '@/core/types/jwt-payload.types';
 export type AuthenticatedRequest = Request & {
   user: JwtAccessPayload;
 };
+
+/**
+ * Совместимость со старым названием типа запроса.
+ */
+export type AuthorizedRequest = AuthenticatedRequest;

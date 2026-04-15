@@ -1,6 +1,6 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
-import { AuthorizedRequest } from '@/common/http/types/request.types';
+import { AuthenticatedRequest } from '@/common/http/types/request.types';
 
 /**
  * Декоратор для получения текущего пользователя из запроса
@@ -10,8 +10,8 @@ import { AuthorizedRequest } from '@/common/http/types/request.types';
  * @returns текущий пользователь или свойство пользователя
  */
 export const CurrentUser = createParamDecorator(
-  (propertyName: keyof AuthorizedRequest['user'] | undefined, context: ExecutionContext) => {
-    const request = context.switchToHttp().getRequest<AuthorizedRequest>();
+  (propertyName: keyof AuthenticatedRequest['user'] | undefined, context: ExecutionContext) => {
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
 
     // Если propertyName передано, возвращаем свойство пользователя, иначе возвращаем пользователя
     return propertyName ? request.user?.[propertyName] : request.user;
