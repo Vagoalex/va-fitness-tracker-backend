@@ -9,10 +9,19 @@ import { LoginDto } from '@/modules/auth/dto/login.dto';
 import { RefreshTokenDto } from '@/modules/auth/dto/refresh-token.dto';
 import { RegisterDto } from '@/modules/auth/dto/register.dto';
 
+/**
+ * Контроллер для работы с аутентификацией
+ */
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  /**
+   * Регистрация пользователя
+   * @param registerDto
+   * @param request
+   * @param userAgent
+   */
   @Public()
   @Post('register')
   register(
@@ -26,6 +35,12 @@ export class AuthController {
     });
   }
 
+  /**
+   * Вход в систему
+   * @param loginDto
+   * @param request
+   * @param userAgent
+   */
   @Public()
   @HttpCode(HttpStatus.OK)
   @Post('login')
@@ -40,6 +55,12 @@ export class AuthController {
     });
   }
 
+  /**
+   * Обновление токенов
+   * @param refreshTokenDto
+   * @param request
+   * @param userAgent
+   */
   @Public()
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
@@ -54,6 +75,10 @@ export class AuthController {
     });
   }
 
+  /**
+   * Выход из системы
+   * @param refreshTokenDto
+   */
   @Public()
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('logout')
@@ -61,12 +86,21 @@ export class AuthController {
     await this.authService.logout(refreshTokenDto.refreshToken);
   }
 
+  /**
+   * Выход из системы на всех устройствах
+   * @param currentUserId
+   */
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('logout-all')
   async logoutFromAllDevices(@CurrentUser('sub') currentUserId: string): Promise<void> {
     await this.authService.logoutFromAllDevices(currentUserId);
   }
 
+  /**
+   * Смена пароля
+   * @param currentUserId
+   * @param changePasswordDto
+   */
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('change-password')
   async changePassword(

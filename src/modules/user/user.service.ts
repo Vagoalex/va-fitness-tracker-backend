@@ -53,10 +53,11 @@ export class UserService {
    * Создаёт пользователя с уже подготовленным passwordHash.
    */
   async createUser(createUserPayload: CreateUserPayload): Promise<UserDocument> {
+    // Нормализуем email
     const normalizedEmail = this.normalizeEmail(createUserPayload.email);
 
+    // Проверяем, существует ли пользователь с таким email
     const existingUser = await this.findByEmail(normalizedEmail);
-
     if (existingUser) {
       throw new BadRequestException('auth.errors.user_exists');
     }
@@ -67,6 +68,7 @@ export class UserService {
         email: normalizedEmail,
       });
     } catch (error: unknown) {
+      // Проверяем, является ли ошибка ошибкой дубликата ключа в MongoDB
       if (this.isMongoDuplicateKeyError(error)) {
         throw new BadRequestException('auth.errors.user_exists');
       }

@@ -19,13 +19,18 @@ import { UserModule } from '@/modules/user/user.module';
 
 @Module({
   imports: [
+    /**
+     * Подключение модуля пользователя
+     */
     UserModule,
 
+    /**
+     * Регистрация JwtModule
+     */
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         const authSettings = configService.get<AuthConfig>(AUTH_CONFIG_KEY);
-
         if (!authSettings) {
           throw new Error('Auth config is not defined');
         }
@@ -39,6 +44,9 @@ import { UserModule } from '@/modules/user/user.module';
       },
     }),
 
+    /**
+     * Подключение модели refresh-сессии
+     */
     MongooseModule.forFeature([
       {
         name: RefreshSession.name,
