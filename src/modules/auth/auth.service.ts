@@ -18,6 +18,7 @@ import { UserStatus } from '@/core/enums/user-status.enum';
 import { JwtAccessPayload, JwtRefreshPayload } from '@/core/types/jwt-payload.types';
 
 import { AuthResponse, AuthTokens, RefreshSessionMeta } from '@/modules/auth/auth.types';
+import { AUTH_CONSTANTS } from '@/modules/auth/constants/auth.constants';
 import { ChangePasswordDto } from '@/modules/auth/dto/change-password.dto';
 import { LoginDto } from '@/modules/auth/dto/login.dto';
 import { RegisterDto } from '@/modules/auth/dto/register.dto';
@@ -25,7 +26,7 @@ import {
   RefreshSession,
   RefreshSessionDocument,
 } from '@/modules/auth/persistence/refresh-session.schema';
-import { UserDocument } from '@/modules/user/persistence/user.schema';
+import { UserDocument, UserResponse } from '@/modules/user/persistence/user.schema';
 import { UserService } from '@/modules/user/user.service';
 
 /**
@@ -62,7 +63,7 @@ export class AuthService {
     const authTokens = await this.createSessionTokens(createdUser, sessionMeta);
 
     return {
-      user: createdUser,
+      user: this.toUserResponse(createdUser),
       ...authTokens,
     };
   }
@@ -94,7 +95,7 @@ export class AuthService {
     const authTokens = await this.createSessionTokens(userDocument, sessionMeta);
 
     return {
-      user: userDocument,
+      user: this.toUserResponse(userDocument),
       ...authTokens,
     };
   }
@@ -264,6 +265,9 @@ export class AuthService {
     ]);
 
     const refreshTokenHash = await bcrypt.hash(refreshToken, authSettings.bcryptSaltRounds);
+    const accessTokenExpiresInSeconds = this.parseExpiresInSeconds(
+      authSettings.accessTokenExpiresIn,
+    );
 
     // Создаём refresh session
     await this.refreshSessionModel.create({
@@ -276,7 +280,9 @@ export class AuthService {
     });
 
     return {
+      tokenType: AUTH_CONSTANTS.TOKEN_TYPE,
       accessToken,
+      expiresIn: accessTokenExpiresInSeconds,
       refreshToken,
     };
   }
@@ -344,5 +350,37 @@ export class AuthService {
     return Array.isArray(userDocument.roles) && userDocument.roles.length > 0
       ? [...userDocument.roles]
       : [RoleType.USER];
+  }
+
+  /**
+   * Приводит документ пользователя к публичному типу ответа.
+   */
+  private toUserResponse(userDocument: UserDocument): UserResponse {
+    return userDocument as unknown as UserResponse;
+  }
+
+  /**
+   * Переводит JWT expiresIn в секунды для ответа API.
+   */
+  private parseExpiresInSeconds(expiresIn: string): number {
+    const normalizedExpiresIn = expiresIn.trim();
+    const match = normalizedExpiresIn.match(/^(\d+)(ms|s|m|h|d)?$/);
+
+    if (!match) {
+      throw new Error(`Unsupported JWT expiresIn format: ${expiresIn}`);
+    }
+
+    const value = Number(match[1]);
+    const unit = match[2] ?? 's';
+
+    const unitToSeconds: Record<string, number> = {
+      ms: 1 / 1000,
+      s: 1,
+      m: 60,
+      h: 60 * 60,
+      d: 60 * 60 * 24,
+    };
+
+    return Math.floor(value * unitToSeconds[unit]);
   }
 }

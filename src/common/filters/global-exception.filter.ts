@@ -98,11 +98,19 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     base: Pick<ApiError, 'timestamp' | 'path'>,
   ): ValidationError {
     const translatedErrors: ValidationErrorDetail[] = validation.details.errors.map((error) => {
-      const translatedConstraints = error.constraints?.map((constraintKey) =>
-        this.i18n.translatePath(constraintKey, {
-          defaultValue: constraintKey,
-        }),
-      );
+      const translatedConstraints = error.constraintDetails?.length
+        ? error.constraintDetails.map((constraint) =>
+            this.i18n.translatePath(constraint.message, {
+              args: constraint.args,
+              defaultValue: constraint.message,
+            }),
+          )
+        : error.constraints?.map((constraintKey) =>
+            this.i18n.translatePath(constraintKey, {
+              args: error.args,
+              defaultValue: constraintKey,
+            }),
+          );
 
       return {
         field: error.field,

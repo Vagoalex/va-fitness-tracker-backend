@@ -18,6 +18,8 @@ const bootstrap = async (): Promise<void> => {
   const apiPrefix = configService.get('app.apiPrefix', { infer: true });
   // Получение режима разработки из конфигурации
   const isDevelopment = configService.get('app.isDevelopment', { infer: true });
+  // Получение host из конфигурации
+  const applicationHost = configService.get('app.host', { infer: true });
   // Получение порта из конфигурации
   const applicationPort = configService.get('app.port', { infer: true });
 
@@ -27,6 +29,10 @@ const bootstrap = async (): Promise<void> => {
 
   if (!applicationPort) {
     throw new Error('App config "port" is not defined');
+  }
+
+  if (!applicationHost) {
+    throw new Error('App config "host" is not defined');
   }
 
   application.setGlobalPrefix(apiPrefix);
@@ -49,7 +55,7 @@ const bootstrap = async (): Promise<void> => {
     SwaggerModule.setup(`${apiPrefix}/docs`, application, swaggerDocument);
   }
 
-  await application.listen(applicationPort);
+  await application.listen(applicationPort, applicationHost);
 
   logger.log(`Application is running on: ${await application.getUrl()}`);
 };

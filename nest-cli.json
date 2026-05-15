@@ -7,7 +7,7 @@
     "assets": [
       {
         "include": "core/i18n/locales/**/*",
-        "outDir": "dist/core/i18n/locales",
+        "outDir": "dist",
         "watchAssets": false
       }
     ]

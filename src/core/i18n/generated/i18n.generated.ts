@@ -59,6 +59,7 @@ export type I18nTranslations = {
   };
   validation: {
     validation_failed: string;
+    property_not_allowed: string;
     is_not_empty: string;
     is_email: string;
     is_string: string;

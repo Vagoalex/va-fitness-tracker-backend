@@ -21,6 +21,7 @@ export class UserService {
 
   /**
    * Возвращает пользователя по id.
+   * @param userId
    */
   async findById(userId: string): Promise<UserDocument> {
     const userDocument = await this.userModel.findById(userId).exec();
@@ -34,6 +35,7 @@ export class UserService {
 
   /**
    * Возвращает пользователя по email.
+   * @param email
    */
   async findByEmail(email: string): Promise<UserDocument | null> {
     return this.userModel.findOne({ email: this.normalizeEmail(email) }).exec();
@@ -41,6 +43,7 @@ export class UserService {
 
   /**
    * Возвращает пользователя по email с passwordHash.
+   * @param email
    */
   async findByEmailWithPasswordHash(email: string): Promise<UserDocument | null> {
     return this.userModel
@@ -51,6 +54,7 @@ export class UserService {
 
   /**
    * Создаёт пользователя с уже подготовленным passwordHash.
+   * @param createUserPayload
    */
   async createUser(createUserPayload: CreateUserPayload): Promise<UserDocument> {
     // Нормализуем email
@@ -79,6 +83,8 @@ export class UserService {
 
   /**
    * Обновляет профиль текущего пользователя.
+   * @param userId
+   * @param updateCurrentUserDto
    */
   async updateMe(
     userId: string,
@@ -100,6 +106,8 @@ export class UserService {
 
   /**
    * Обновляет дату последнего входа.
+   * @param userId
+   * @param loginDate
    */
   async updateLastLoginAt(userId: string, loginDate: Date): Promise<void> {
     await this.userModel.updateOne({ _id: userId }, { $set: { lastLoginAt: loginDate } }).exec();
@@ -107,6 +115,8 @@ export class UserService {
 
   /**
    * Обновляет пароль и дату смены пароля.
+   * @param userId
+   * @param nextPasswordHash
    */
   async updatePassword(userId: string, nextPasswordHash: string): Promise<void> {
     const passwordChangedAt = new Date();
@@ -130,11 +140,16 @@ export class UserService {
 
   /**
    * Нормализует email для поиска и сохранения.
+   * @param email
    */
   private normalizeEmail(email: string): string {
     return email.trim().toLowerCase();
   }
 
+  /**
+   * Проверяет, является ли ошибка ошибкой дубликата ключа в MongoDB.
+   * @param error
+   */
   private isMongoDuplicateKeyError(error: unknown): error is { code: number } {
     return typeof error === 'object' && error !== null && 'code' in error && error.code === 11000;
   }

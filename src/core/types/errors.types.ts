@@ -108,6 +108,10 @@ export interface InternalValidationErrorDetail {
   message: I18nPath;
   args?: Record<string, unknown>;
   constraints?: I18nPath[];
+  constraintDetails?: Array<{
+    message: I18nPath;
+    args?: Record<string, unknown>;
+  }>;
 }
 
 export interface InternalValidationErrorResponse {

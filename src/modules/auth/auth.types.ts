@@ -1,14 +1,16 @@
-import { UserDocument } from '@/modules/user/persistence/user.schema';
+import { UserResponse } from '@/modules/user/persistence/user.schema';
 
 /** Тип токенов авторизации */
 export type AuthTokens = {
+  tokenType: 'Bearer';
   accessToken: string;
+  expiresIn: number;
   refreshToken: string;
 };
 
 /** Тип ответа авторизации */
 export type AuthResponse = AuthTokens & {
-  user: UserDocument;
+  user: UserResponse;
 };
 
 /** Тип метаданных сессии обновления */

@@ -6,7 +6,12 @@ import {
   InternalValidationErrorDetail,
   InternalValidationErrorResponse,
 } from '@/core/types/errors.types';
-import { CONSTRAINT_TO_I18N_KEY, CONSTRAINT_PRIORITY, ValidationTranslationKeys } from './types';
+import {
+  CONSTRAINT_TO_I18N_KEY,
+  CONSTRAINT_PRIORITY,
+  VALIDATION_I18N_KEYS,
+  ValidationTranslationKeys,
+} from './types';
 
 /**
  * Кастомный пайп валидации с поддержкой i18n и типобезопасностью
@@ -141,7 +146,7 @@ export class ValidationPipe implements PipeTransform<unknown> {
       return {
         constraintType,
         i18nPath: `validation.${key}` as I18nPath,
-        args: this.buildArgs(constraintType, originalMessage, fieldPath, error.value),
+        args: this.buildArgs(error, constraintType, originalMessage, fieldPath, error.value),
       };
     });
 
@@ -153,6 +158,10 @@ export class ValidationPipe implements PipeTransform<unknown> {
       message: primary.i18nPath,
       args: primary.args,
       constraints: mapped.map((m) => m.i18nPath),
+      constraintDetails: mapped.map((m) => ({
+        message: m.i18nPath,
+        args: m.args,
+      })),
     };
   }
 
@@ -173,8 +182,8 @@ export class ValidationPipe implements PipeTransform<unknown> {
     if (translationKeyMatch) {
       const potentialKey = translationKeyMatch[1];
 
-      // Проверяем, существует ли такой ключ в нашей карте констрейнтов
-      if (potentialKey in CONSTRAINT_TO_I18N_KEY) {
+      // Проверяем, существует ли такой ключ среди i18n-ключей валидации
+      if (VALIDATION_I18N_KEYS.has(potentialKey as ValidationTranslationKeys)) {
         return potentialKey as ValidationTranslationKeys;
       }
     }
@@ -217,6 +226,7 @@ export class ValidationPipe implements PipeTransform<unknown> {
   }
 
   private buildArgs(
+    error: ClassValidatorError,
     constraintType: string,
     originalMessage: string,
     fieldPath: string,
@@ -227,6 +237,7 @@ export class ValidationPipe implements PipeTransform<unknown> {
       field: fieldPath,
       value,
     };
+    const contextArgs = this.extractI18nArgs(error, constraintType);
 
     // Попытка вытащить параметры из сообщения (простая и достаточная для MVP)
     // Примеры сообщений class-validator часто содержат числа/паттерны.
@@ -259,7 +270,27 @@ export class ValidationPipe implements PipeTransform<unknown> {
       if (pattern) args.pattern = pattern;
     }
 
+    if (constraintType === 'whitelistValidation') {
+      args.field = fieldPath;
+    }
+
+    Object.assign(args, contextArgs);
+
     return args;
+  }
+
+  private extractI18nArgs(
+    error: ClassValidatorError,
+    constraintType: string,
+  ): Record<string, unknown> {
+    const context = error.contexts?.[constraintType] as Record<string, unknown> | undefined;
+    const i18nArgs = context?.i18nArgs;
+
+    if (!i18nArgs || typeof i18nArgs !== 'object' || Array.isArray(i18nArgs)) {
+      return {};
+    }
+
+    return i18nArgs as Record<string, unknown>;
   }
 
   private extractFirstNumber(text: string): number | null {

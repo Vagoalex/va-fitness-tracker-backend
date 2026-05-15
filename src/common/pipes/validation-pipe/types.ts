@@ -56,7 +56,12 @@ export const CONSTRAINT_TO_I18N_KEY: Readonly<Record<string, ValidationTranslati
   notContains: 'not_contains',
   isIn: 'is_in',
   isNotIn: 'is_not_in',
+  whitelistValidation: 'property_not_allowed',
 } as const;
+
+export const VALIDATION_I18N_KEYS = new Set<ValidationTranslationKeys>(
+  Object.values(CONSTRAINT_TO_I18N_KEY),
+);
 
 /**
  * Приоритет констрейнтов для выбора основного сообщения об ошибке
@@ -108,4 +113,5 @@ export const CONSTRAINT_PRIORITY: ReadonlyArray<keyof typeof CONSTRAINT_TO_I18N_
   'notContains', // Содержит запрещенное значение
   'isIn', // Не входит в разрешенный список
   'isNotIn', // Входит в запрещенный список
+  'whitelistValidation', // Поле не разрешено DTO
 ] as const;

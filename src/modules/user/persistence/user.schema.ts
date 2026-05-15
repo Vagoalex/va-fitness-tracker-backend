@@ -1,11 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 
 import { RoleType, ROLE_TYPE_VALUES } from '@/core/enums/role-type.enum';
 import { UserGender, USER_GENDER_VALUES } from '@/core/enums/user-gender.enum';
 import { UserStatus, USER_STATUS_VALUES } from '@/core/enums/user-status.enum';
 
 export type UserDocument = HydratedDocument<User>;
+export type UserResponse = Omit<User, 'passwordHash'> & {
+  id: string;
+};
 
 @Schema({
   collection: 'users',
@@ -88,10 +91,22 @@ export class User {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-/** Трансформация для поля passwordHash */
+/** Трансформация публичного ответа пользователя */
 UserSchema.set('toJSON', {
   transform: (_document, returnedObject: Record<string, unknown>) => {
+    const objectId = returnedObject._id;
+
+    if (objectId instanceof Types.ObjectId) {
+      returnedObject.id = objectId.toHexString();
+    }
+
+    if (typeof objectId === 'string') {
+      returnedObject.id = objectId;
+    }
+
+    delete returnedObject._id;
     delete returnedObject.passwordHash;
+
     return returnedObject;
   },
 });

@@ -38,6 +38,8 @@ import {
  */
 type ValidationTranslationKeys = I18nKeys['validation'];
 
+type ValidationContextArgs = Record<string, unknown>;
+
 /**
  * Утилита для формирования финальных опций с добавлением префикса к ключу перевода
  */
@@ -53,6 +55,29 @@ function buildDecoratorOptions<T extends TypedValidationOptions>(
       ? `validation.${message}` // Добавляем префикс для совместимости с ValidationPipe
       : `validation.${defaultMessage}`,
   } as ValidationOptions & Omit<T, 'message'>;
+}
+
+/**
+ * Добавляет параметры для i18n-подстановки в контекст class-validator
+ */
+function withI18nArgs<T extends ValidationOptions>(options: T, args: ValidationContextArgs): T {
+  const context = options.context as Record<string, unknown> | undefined;
+  const rawI18nArgs = context?.i18nArgs;
+  const i18nArgs =
+    rawI18nArgs && typeof rawI18nArgs === 'object' && !Array.isArray(rawI18nArgs)
+      ? (rawI18nArgs as ValidationContextArgs)
+      : {};
+
+  return {
+    ...options,
+    context: {
+      ...context,
+      i18nArgs: {
+        ...i18nArgs,
+        ...args,
+      },
+    },
+  };
 }
 
 // ============================================================================
@@ -235,7 +260,7 @@ export function MinLength(
   validationOptions?: TypedValidationOptions,
 ): PropertyDecorator {
   const finalOptions = buildDecoratorOptions(validationOptions, 'min_length');
-  return OriginalMinLength(min, finalOptions);
+  return OriginalMinLength(min, withI18nArgs(finalOptions, { min }));
 }
 
 /**
@@ -252,7 +277,7 @@ export function MaxLength(
   validationOptions?: TypedValidationOptions,
 ): PropertyDecorator {
   const finalOptions = buildDecoratorOptions(validationOptions, 'max_length');
-  return OriginalMaxLength(max, finalOptions);
+  return OriginalMaxLength(max, withI18nArgs(finalOptions, { max }));
 }
 
 /**
@@ -266,7 +291,7 @@ export function MaxLength(
  */
 export function Min(min: number, validationOptions?: TypedValidationOptions): PropertyDecorator {
   const finalOptions = buildDecoratorOptions(validationOptions, 'min');
-  return OriginalMin(min, finalOptions);
+  return OriginalMin(min, withI18nArgs(finalOptions, { min }));
 }
 
 /**
@@ -280,7 +305,7 @@ export function Min(min: number, validationOptions?: TypedValidationOptions): Pr
  */
 export function Max(max: number, validationOptions?: TypedValidationOptions): PropertyDecorator {
   const finalOptions = buildDecoratorOptions(validationOptions, 'max');
-  return OriginalMax(max, finalOptions);
+  return OriginalMax(max, withI18nArgs(finalOptions, { max }));
 }
 
 /**
@@ -297,7 +322,7 @@ export function Matches(
   validationOptions?: TypedValidationOptions,
 ): PropertyDecorator {
   const finalOptions = buildDecoratorOptions(validationOptions, 'matches');
-  return OriginalMatches(pattern, finalOptions);
+  return OriginalMatches(pattern, withI18nArgs(finalOptions, { pattern: pattern.source }));
 }
 
 /**
@@ -314,7 +339,7 @@ export function IsEnum(
   validationOptions?: TypedValidationOptions,
 ): PropertyDecorator {
   const finalOptions = buildDecoratorOptions(validationOptions, 'is_enum');
-  return OriginalIsEnum(entity, finalOptions);
+  return OriginalIsEnum(entity, withI18nArgs(finalOptions, { validValues: Object.values(entity) }));
 }
 
 // ============================================================================

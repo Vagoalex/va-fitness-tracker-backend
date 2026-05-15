@@ -10,14 +10,19 @@ class EnvironmentTypesVariables {
   @IsEnum(EnvironmentTypes)
   NODE_ENV: Environment;
 
+  @IsOptional()
+  @IsString()
+  HOST?: string;
+
   @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(65535)
   PORT: number;
 
+  @IsOptional()
   @IsString()
-  API_PREFIX: string;
+  API_PREFIX?: string;
 
   @IsString()
   DB_NAME: string;
@@ -49,26 +54,37 @@ class EnvironmentTypesVariables {
   @IsString()
   JWT_REFRESH_SECRET: string;
 
+  @IsOptional()
   @IsString()
-  JWT_ACCESS_EXPIRES_IN: string;
+  JWT_ACCESS_EXPIRES_IN?: string;
 
+  @IsOptional()
   @IsString()
-  JWT_REFRESH_EXPIRES_IN: string;
+  JWT_REFRESH_EXPIRES_IN?: string;
 
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  JWT_REFRESH_TTL_MS?: number;
+
+  @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(4)
   @Max(15)
-  BCRYPT_SALT_ROUNDS: number;
+  BCRYPT_SALT_ROUNDS?: number;
 
+  @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(6)
   @Max(128)
-  PASSWORD_MIN_LENGTH: number;
+  PASSWORD_MIN_LENGTH?: number;
 
+  @IsOptional()
   @IsIn([...LOG_LEVELS])
-  LOG_LEVEL: AppLogLevel;
+  LOG_LEVEL?: AppLogLevel;
 }
 
 /**

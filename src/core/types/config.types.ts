@@ -16,6 +16,7 @@ export type AppLogLevel = (typeof LOG_LEVELS)[number];
  */
 export interface AppConfig {
   nodeEnv: Environment;
+  host: string;
   port: number;
   apiPrefix: string;
   isProduction: boolean;
